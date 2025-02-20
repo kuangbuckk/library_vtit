@@ -2,6 +2,7 @@ package com.project.library.controllers;
 
 import com.project.library.dtos.CategoryDTO;
 import com.project.library.entities.Category;
+import com.project.library.responses.CategoryResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.CategoryServiceImpl;
 import com.project.library.services.interfaces.ICategoryService;
@@ -25,15 +26,14 @@ public class CategoryController {
     private final ICategoryService categoryService;
 
     @GetMapping("/")
-    public ResponseEntity<GenericResponse<List<Category>>> getAllCategories() {
-        List<Category> categories = categoryService.getAllCategories();
+    public ResponseEntity<GenericResponse> getAllCategories() {
+        List<CategoryResponse> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(GenericResponse.success(categories));
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<GenericResponse<Category>> getCategory(@PathVariable String code) {
-        UUID uuidCode = UUID.fromString(code);
-        Category existingCategory = categoryService.getCategoryById(uuidCode);
+    public ResponseEntity<GenericResponse> getCategory(@PathVariable UUID code) {
+        CategoryResponse existingCategory = categoryService.getCategoryById(code);
         return ResponseEntity.ok(GenericResponse.success(existingCategory));
     }
 
@@ -49,13 +49,13 @@ public class CategoryController {
                     .toList();
             return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
         }
-        Category newCategory = categoryService.addCategory(categoryDTO);
+        CategoryResponse newCategory = categoryService.addCategory(categoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newCategory));
     }
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateCategory(
-            @PathVariable String code,
+            @PathVariable UUID code,
             @RequestBody @Valid CategoryDTO categoryDTO,
             BindingResult result
     ) {
@@ -66,8 +66,7 @@ public class CategoryController {
                     .toList();
             return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
         }
-        UUID uuidCode = UUID.fromString(code);
-        Category updatedCategory = categoryService.updateCategory(categoryDTO, uuidCode);
+        CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, code);
         return ResponseEntity.ok(GenericResponse.success(updatedCategory));
     }
 

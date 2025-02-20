@@ -4,6 +4,7 @@ import com.project.library.dtos.CategoryDTO;
 import com.project.library.entities.Category;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.CategoryRepository;
+import com.project.library.responses.CategoryResponse;
 import com.project.library.services.interfaces.ICategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,37 +18,44 @@ public class CategoryServiceImpl implements ICategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public List<Category> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories() {
+        List<CategoryResponse> categories = categoryRepository.findAll()
+                .stream()
+                .map(category -> CategoryResponse.fromCategory(category))
+                .toList();
         return categories;
     }
 
     @Override
-    public Category getCategoryById(UUID code) {
+    public CategoryResponse getCategoryById(UUID code) {
         Category category = categoryRepository
                 .findById(code)
                 .orElseThrow(() -> new DataNotFoundException("Category not found with code " + code));
-        return category;
+        return CategoryResponse.fromCategory(category);
     }
 
     @Override
-    public Category addCategory(CategoryDTO categoryDTO) {
+    public CategoryResponse addCategory(CategoryDTO categoryDTO) {
         Category newCategory = Category.builder()
                 .categoryName(categoryDTO.getCategoryName())
                 .build();
-        return categoryRepository.save(newCategory);
+        categoryRepository.save(newCategory);
+        return CategoryResponse.fromCategory(newCategory);
     }
 
     @Override
-    public Category updateCategory(CategoryDTO categoryDTO, UUID code) {
-        Category existingCategory = this.getCategoryById(code);
+    public CategoryResponse updateCategory(CategoryDTO categoryDTO, UUID code) {
+        Category existingCategory = categoryRepository.findById(code)
+                .orElseThrow(() -> new DataNotFoundException("Category not found with code " + code));
         existingCategory.setCategoryName(categoryDTO.getCategoryName());
-        return categoryRepository.save(existingCategory);
+        categoryRepository.save(existingCategory);
+        return CategoryResponse.fromCategory(existingCategory);
     }
 
     @Override
     public void deleteCategory(UUID code) {
-        Category existingCategory = this.getCategoryById(code);
+        Category existingCategory = categoryRepository.findById(code)
+                .orElseThrow(() -> new DataNotFoundException("Category not found with code " + code));
         categoryRepository.delete(existingCategory);
     }
 }
