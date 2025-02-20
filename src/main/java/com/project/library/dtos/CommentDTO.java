@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -20,9 +22,9 @@ public class CommentDTO {
 
     @JsonProperty(value = "user_code")
     @NotBlank(message = "Comment must belong to a user")
-    private String userCode;
+    private UUID userCode;
 
     @JsonProperty(value = "post_code")
     @NotBlank(message = "Comment must belong to a post")
-    private String postCode;
+    private UUID postCode;
 }

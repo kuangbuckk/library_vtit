@@ -8,6 +8,7 @@ import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.CommentRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
+import com.project.library.responses.CommentResponse;
 import com.project.library.services.interfaces.ICommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,25 +24,28 @@ public class CommentServiceImpl implements ICommentService {
     private final UserRepository userRepository;
 
     @Override
-    public List<Comment> getAllComment() {
-        List<Comment> comments = commentRepository.findAll();
+    public List<CommentResponse> getAllComment() {
+        List<CommentResponse> comments = commentRepository.findAll()
+                .stream()
+                .map(comment -> CommentResponse.fromComment(comment))
+                .toList();
         return comments;
     }
 
     @Override
-    public Comment getCommentByCode(String code) {
-        Comment existingComment = commentRepository.findById(UUID.fromString(code))
+    public CommentResponse getCommentByCode(UUID code) {
+        Comment existingComment = commentRepository.findById(code)
                 .orElseThrow(()->
                         new DataNotFoundException("Comment not found with code " + code));
-        return existingComment;
+        return CommentResponse.fromComment(existingComment);
     }
 
     @Override
-    public Comment addComment(CommentDTO commentDTO) {
-        User existingUser = userRepository.findById(UUID.fromString(commentDTO.getUserCode()))
+    public CommentResponse addComment(CommentDTO commentDTO) {
+        User existingUser = userRepository.findById(commentDTO.getUserCode())
                 .orElseThrow(()->
                         new DataNotFoundException("User not found with code " + commentDTO.getUserCode()));
-        Post existingPost = postRepository.findById(UUID.fromString(commentDTO.getPostCode()))
+        Post existingPost = postRepository.findById(commentDTO.getPostCode())
                 .orElseThrow(() ->
                         new DataNotFoundException("Post not found with code " + commentDTO.getPostCode()));
         Comment newComment = Comment.builder()
@@ -49,18 +53,20 @@ public class CommentServiceImpl implements ICommentService {
                 .post(existingPost)
                 .user(existingUser)
                 .build();
-        return commentRepository.save(newComment);
+        commentRepository.save(newComment);
+        return CommentResponse.fromComment(newComment);
     }
 
     @Override
-    public Comment updateComment(CommentDTO commentDTO, String code) {
-        Comment existingComment = getCommentByCode(code);
+    public CommentResponse updateComment(CommentDTO commentDTO, UUID code) {
+        Comment existingComment = commentRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException("Comment not found with code " + code));
         existingComment.setContent(commentDTO.getContent());
-        return existingComment;
+        return CommentResponse.fromComment(existingComment);
     }
 
     @Override
-    public void deleteComment(String code) {
-        commentRepository.deleteById(UUID.fromString(code));
+    public void deleteComment(UUID code) {
+        commentRepository.deleteById(code);
     }
 }

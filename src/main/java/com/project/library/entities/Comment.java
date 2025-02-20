@@ -24,12 +24,10 @@ public class Comment extends BaseEntity {
     private String content;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonBackReference
     @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     @JoinColumn(name = "user_code")
     private User user;
 }
