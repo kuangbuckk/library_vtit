@@ -26,6 +26,9 @@ public class Borrow {
     @JoinColumn(name = "book_code", nullable = false)
     private Book book;
 
+    @Column(name = "borrow_amount", nullable = false)
+    private int borrowAmount;
+
     @Column(name = "borrow_at", nullable = false)
     private LocalDateTime borrowAt;
 

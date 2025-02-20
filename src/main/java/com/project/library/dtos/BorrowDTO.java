@@ -1,6 +1,8 @@
 package com.project.library.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -21,14 +23,19 @@ public class BorrowDTO {
     @NotBlank(message = "User code must not blank")
     private String bookCode;
 
-    @JsonProperty(value = "borrow_at")
-    @NotBlank(message = "Borrow at must not blank")
-    private LocalDateTime borrowAt;
+    @JsonProperty(value = "borrow_amount")
+    @Min(value = 1, message = "Must borrow at least 1 book")
+    @Max(value = 20, message = "Must not borrow above 20 books")
+    private int borrowAmount;
 
-    @JsonProperty(value = "return_at")
-    @NotBlank(message = "Borrow at must not blank")
-    private LocalDateTime returnAt;
+//    @JsonProperty(value = "borrow_at")
+//    @NotBlank(message = "Borrow at must not blank")
+//    private LocalDateTime borrowAt;
 
+//    @JsonProperty(value = "return_at")
+//    @NotBlank(message = "Borrow at must not blank")
+//    private LocalDateTime returnAt;
+//
     @JsonProperty(value = "status")
     private String status;
 }
