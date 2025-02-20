@@ -43,11 +43,9 @@ public class User extends BaseEntity {
     private String address;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
     private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
     private List<Comment> comments;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -56,7 +54,6 @@ public class User extends BaseEntity {
             joinColumns = @JoinColumn(name = "role_group_code"),
             inverseJoinColumns = @JoinColumn(name = "user_code")
     )
-    @JsonManagedReference
     private List<RoleGroup> roleGroups;
 
 }

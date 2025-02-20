@@ -3,13 +3,20 @@ package com.project.library.services;
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.RoleGroup;
 import com.project.library.entities.User;
+import com.project.library.events.UserRegisterEvent;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.RoleGroupRepository;
 import com.project.library.repositories.UserRepository;
+import com.project.library.responses.UserPageResponse;
+import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,27 +25,36 @@ import java.util.UUID;
 public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleGroupRepository roleGroupRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
-    public List<User> getUsers() {
-        List<User> users = userRepository.findAll();
-        return users;
+    public UserPageResponse getUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        int totalPages = users.getTotalPages();
+        List<UserResponse> userResponses = users.getContent()
+                .stream()
+                .map(user -> UserResponse.fromUser(user))
+                .toList();
+        return UserPageResponse.builder()
+                .totalPages(totalPages)
+                .userResponses(userResponses)
+                .build();
     }
 
     @Override
-    public User getUserByCode(String code) {
-        User existingUser = userRepository.findById(UUID.fromString(code))
+    public UserResponse getUserByCode(UUID code) {
+        User existingUser = userRepository.findById(code)
                 .orElseThrow(()-> new DataNotFoundException("User not found with code" + code));
-        return existingUser;
+        return UserResponse.fromUser(existingUser);
     }
 
     @Override
-    public User createUser(UserDTO userDTO) {
+    public UserResponse createUser(UserDTO userDTO) {
         if (userDTO.getRoleGroupCodes().isEmpty()) {
             throw new DataNotFoundException("Role group code is empty");
         }
         List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupCodes());
-
+        applicationEventPublisher.publishEvent(new UserRegisterEvent(userDTO.getUsername()));
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
                 .username(userDTO.getUsername())
@@ -49,17 +65,27 @@ public class UserServiceImpl implements IUserService {
                 .roleGroups(roleGroups)
                 .password(userDTO.getPassword())
                 .build();
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return UserResponse.fromUser(newUser);
     }
 
     @Override
-    public User updateUser(UserDTO User, String code) {
-        return null;
+    public UserResponse updateUser(UserDTO User, UUID code) {
+        User existingUser = userRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException("User not found with code" + code));
+        existingUser.setFullName(User.getFullName());
+        existingUser.setUsername(User.getUsername());
+        existingUser.setEmail(User.getEmail());
+        existingUser.setPhoneNumber(User.getPhoneNumber());
+        existingUser.setDateOfBirth(User.getDateOfBirth());
+        existingUser.setAddress(User.getAddress());
+        userRepository.save(existingUser);
+        return UserResponse.fromUser(existingUser);
     }
 
     @Override
-    public void deleteUser(String code) {
-
+    public void deleteUser(UUID code) {
+        userRepository.deleteById(code);
     }
 
     @Override
