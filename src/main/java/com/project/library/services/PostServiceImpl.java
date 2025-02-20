@@ -8,8 +8,12 @@ import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.BookRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
+import com.project.library.responses.PostPageResponse;
+import com.project.library.responses.PostResponse;
 import com.project.library.services.interfaces.IPostService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,20 +27,28 @@ public class PostServiceImpl implements IPostService {
     private final UserRepository userRepository;
 
     @Override
-    public List<Post> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        return posts;
+    public PostPageResponse getAllPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        int totalPages = posts.getTotalPages();
+        List<PostResponse> postResponseList = posts.getContent()
+                .stream()
+                .map(post -> PostResponse.fromPost(post))
+                .toList();
+        return PostPageResponse.builder()
+                .postResponseList(postResponseList)
+                .totalPages(totalPages)
+                .build();
     }
 
     @Override
-    public Post getPostByCode(String code) {
-        Post existingPost = postRepository.findById(UUID.fromString(code))
+    public PostResponse getPostByCode(UUID code) {
+        Post existingPost = postRepository.findById((code))
                 .orElseThrow(() -> new DataNotFoundException("Post with code " + code + " not found"));
-        return existingPost;
+        return PostResponse.fromPost(existingPost);
     }
 
     @Override
-    public Post addPost(PostDTO postDTO) {
+    public PostResponse addPost(PostDTO postDTO) {
         Book existingBook = bookRepository
                 .findById(postDTO.getBookCode())
                 .orElseThrow(() ->
@@ -44,26 +56,28 @@ public class PostServiceImpl implements IPostService {
         User user = userRepository.findById(postDTO.getUserCode())
                 .orElseThrow(() ->
                         new DataNotFoundException("User with code " + postDTO.getUserCode() + " not found"));
-        Post post = Post.builder()
+        Post newPost = Post.builder()
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
                 .book(existingBook)
                 .user(user)
                 .build();
-        return postRepository.save(post);
+        postRepository.save(newPost);
+        return PostResponse.fromPost(newPost);
     }
 
     @Override
-    public Post updatePost(PostDTO postDTO, String code) {
-        Post existingPost = getPostByCode(code);
+    public PostResponse updatePost(PostDTO postDTO, UUID code) {
+        Post existingPost = postRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException("Post with code " + code + " not found"));
         existingPost.setTitle(postDTO.getTitle());
         existingPost.setContent(postDTO.getContent());
-
-        return postRepository.save(existingPost);
+        postRepository.save(existingPost);
+        return PostResponse.fromPost(existingPost);
     }
 
     @Override
-    public void deletePost(String code) {
-        postRepository.deleteById(UUID.fromString(code));
+    public void deletePost(UUID code) {
+        postRepository.deleteById(code);
     }
 }

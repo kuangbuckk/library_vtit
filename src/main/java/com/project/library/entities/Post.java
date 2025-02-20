@@ -30,15 +30,12 @@ public class Post extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "book_code", nullable = false)
-    @JsonBackReference
     private Book book;
 
     @ManyToOne
     @JoinColumn(name = "user_code", nullable = false)
-    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "post")
-    @JsonManagedReference
     private List<Comment> comments;
 }
