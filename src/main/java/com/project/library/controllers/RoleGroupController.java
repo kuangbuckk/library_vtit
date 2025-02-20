@@ -26,12 +26,8 @@ public class RoleGroupController {
 
     @GetMapping("/{code}")
     public ResponseEntity<?> getRoleGroup(@PathVariable String code) {
-        try {
-            RoleGroup existingRoleGroup = roleGroupService.getRoleGroupByCode(code);
-            return ResponseEntity.ok(existingRoleGroup);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        RoleGroup existingRoleGroup = roleGroupService.getRoleGroupByCode(code);
+        return ResponseEntity.ok(existingRoleGroup);
     }
 
     @PostMapping("/")
@@ -56,30 +52,22 @@ public class RoleGroupController {
             @PathVariable String code,
             BindingResult result
     ) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errors = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-            }
-            RoleGroup updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
-            return ResponseEntity.ok(updatedRoleGroup);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
+        RoleGroup updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
+        return ResponseEntity.ok(updatedRoleGroup);
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<?> deleteRoleGroup(
             @PathVariable String code
     ) {
-        try {
-            roleGroupService.deleteRoleGroup(code);
-            return ResponseEntity.ok("Deleted role group successfully with code " + code);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        roleGroupService.deleteRoleGroup(code);
+        return ResponseEntity.ok("Deleted role group successfully with code " + code);
     }
 }
