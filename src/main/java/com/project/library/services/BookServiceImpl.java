@@ -6,8 +6,12 @@ import com.project.library.entities.Category;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.BookRepository;
 import com.project.library.repositories.CategoryRepository;
+import com.project.library.responses.BookPageResponse;
+import com.project.library.responses.BookResponse;
 import com.project.library.services.interfaces.IBookService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,21 +24,30 @@ public class BookServiceImpl implements IBookService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public List<Book> getAllBooks() {
-        List<Book> books = bookRepository.findAll();
-        return books;
+    public BookPageResponse getAllBooks(Pageable pageable) {
+        Page<Book> books = bookRepository.findAll(pageable);
+        int totalPage = books.getTotalPages();
+        List<BookResponse> bookResponses = books.getContent()
+                .stream()
+                .map(book -> BookResponse.fromBook(book))
+                .toList();
+
+        return BookPageResponse.builder()
+                .bookResponses(bookResponses)
+                .totalPages(totalPage)
+                .build();
     }
 
     @Override
-    public Book getBookByCode(UUID code) {
+    public BookResponse getBookByCode(UUID code) {
         Book book = bookRepository
                 .findById(code)
                 .orElseThrow(()-> new DataNotFoundException("Can't find book with code: " + code));
-        return book;
+        return BookResponse.fromBook(book);
     }
 
     @Override
-    public Book addBook(BookDTO bookDTO) {
+    public BookResponse addBook(BookDTO bookDTO) {
         List<UUID> categoryCodes = bookDTO.getCategoryCodes()
                 .stream()
                 .map(categoryCode -> UUID.fromString(categoryCode))
@@ -47,24 +60,28 @@ public class BookServiceImpl implements IBookService {
                 .amount(bookDTO.getAmount())
                 .categories(categories)
                 .build();
-        return bookRepository.save(newBook);
+        bookRepository.save(newBook);
+        return BookResponse.fromBook(newBook);
     }
 
     @Override
-    public Book updateBook(BookDTO bookDTO, UUID code) {
+    public BookResponse updateBook(BookDTO bookDTO, UUID code) {
         List<UUID> categoryCodes = bookDTO.getCategoryCodes()
                 .stream()
                 .map(categoryCode -> UUID.fromString(categoryCode))
                 .toList();
         List<Category> categories = categoryRepository.findCategoriesByCodeIn(categoryCodes);
 
-        Book existingBook = getBookByCode(code);
+        Book existingBook = bookRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException("Can't find book with code: " + code));
+
         existingBook.setTitle(bookDTO.getTitle());
         existingBook.setAuthor(bookDTO.getAuthor());
         existingBook.setAmount(bookDTO.getAmount());
         existingBook.setCategories(categories);
+        bookRepository.save(existingBook);
 
-        return existingBook;
+        return BookResponse.fromBook(existingBook);
     }
 
     @Override

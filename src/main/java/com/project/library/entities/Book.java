@@ -37,11 +37,9 @@ public class Book extends BaseEntity {
             joinColumns = @JoinColumn(name = "book_code"),
             inverseJoinColumns = @JoinColumn(name = "category_code")
     )
-    @JsonManagedReference
     private List<Category> categories;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private List<Post> posts;
 
 }
