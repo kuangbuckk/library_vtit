@@ -33,10 +33,8 @@ public class RoleGroup {
             joinColumns = @JoinColumn(name = "role_group_code"),
             inverseJoinColumns = @JoinColumn(name = "function_code")
     )
-    @JsonManagedReference
     private List<Function> functions;
 
     @ManyToMany(mappedBy = "roleGroups")
-    @JsonBackReference
     private List<User> users;
 }

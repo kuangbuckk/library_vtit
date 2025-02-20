@@ -26,6 +26,5 @@ public class Function {
     private String description;
 
     @ManyToMany(mappedBy = "functions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonBackReference //bị sở hữu
     private List<RoleGroup> roleGroups;
 }

@@ -24,7 +24,6 @@ public class Category {
     private String categoryName;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
-    @JsonBackReference
     private List<Book> books;
 
 }
