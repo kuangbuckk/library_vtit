@@ -4,6 +4,7 @@ import com.project.library.dtos.FunctionDTO;
 import com.project.library.entities.Function;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.FunctionRepository;
+import com.project.library.responses.FunctionResponse;
 import com.project.library.services.interfaces.IFunctionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,39 +18,42 @@ public class FunctionServiceImpl implements IFunctionService {
     private final FunctionRepository functionRepository;
 
     @Override
-    public List<Function> getAllFunctions() {
+    public List<FunctionResponse> getAllFunctions() {
         List<Function> functions = functionRepository.findAll();
-        return functions;
+        return functions.stream().map(FunctionResponse::fromFunction).toList();
     }
 
     @Override
-    public Function getFunctionByCode(String code) {
+    public FunctionResponse getFunctionByCode(UUID code) {
         Function existingFunction = functionRepository
-                .findById(UUID.fromString(code))
+                .findById(code)
                 .orElseThrow(()-> new DataNotFoundException("Can't find function with code "+ code));
-        return existingFunction;
+        return FunctionResponse.fromFunction(existingFunction);
     }
 
     @Override
-    public Function addFunction(FunctionDTO functionDTO) {
+    public FunctionResponse addFunction(FunctionDTO functionDTO) {
         Function function = Function.builder()
                 .functionName(functionDTO.getFunctionName())
                 .description(functionDTO.getDescription())
                 .build();
-        return functionRepository.save(function);
+        functionRepository.save(function);
+        return FunctionResponse.fromFunction(function);
     }
 
     @Override
-    public Function updateFunction(FunctionDTO functionDTO, String code) {
-        Function existingFunction = this.getFunctionByCode(code);
+    public FunctionResponse updateFunction(FunctionDTO functionDTO, UUID code) {
+        Function existingFunction = functionRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException("Can't find function with code "+ code));
         existingFunction.setDescription(functionDTO.getDescription());
         existingFunction.setFunctionName(functionDTO.getFunctionName());
 
-        return functionRepository.save(existingFunction);
+        functionRepository.save(existingFunction);
+        return FunctionResponse.fromFunction(existingFunction);
     }
 
     @Override
-    public void deleteFunction(String code) {
-        functionRepository.deleteById(UUID.fromString(code));
+    public void deleteFunction(UUID code) {
+        functionRepository.deleteById(code);
     }
 }
