@@ -1,5 +1,6 @@
 package com.project.library.services;
 
+import com.project.library.components.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.RoleGroup;
 import com.project.library.entities.User;
@@ -14,6 +15,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,7 +30,9 @@ import java.util.UUID;
 public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleGroupRepository roleGroupRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final JwtTokenUtils jwtTokenUtils;
 
     @Override
     public UserPageResponse getUsers(Pageable pageable) {
@@ -63,8 +70,9 @@ public class UserServiceImpl implements IUserService {
                 .dateOfBirth(userDTO.getDateOfBirth())
                 .address(userDTO.getAddress())
                 .roleGroups(roleGroups)
-                .password(userDTO.getPassword())
                 .build();
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        newUser.setPassword(encodedPassword);
         userRepository.save(newUser);
         return UserResponse.fromUser(newUser);
     }
@@ -90,6 +98,14 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public String login(String username, String password) {
-        return "";
+        User existingUser = userRepository.findByUsername(username)
+                .orElseThrow(()-> new BadCredentialsException("Username/password is not correct"));
+        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
+            throw new BadCredentialsException("Wrong password");
+        }
+        if (existingUser.getRoleGroups().isEmpty()) {
+            throw new DataNotFoundException("Role group code is empty");
+        }
+        return jwtTokenUtils.generateToken(existingUser);
     }
 }

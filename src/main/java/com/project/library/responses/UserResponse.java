@@ -1,6 +1,7 @@
 package com.project.library.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.library.entities.RoleGroup;
 import com.project.library.entities.User;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,13 +40,13 @@ public class UserResponse {
     @NotBlank(message = "Address is required")
     private String address;
 
-    @JsonProperty(value = "role_group_names")
-    private List<String> roleGroupNames;
+    @JsonProperty(value = "role_group")
+    private List<RoleGroupResponse> roleGroupResponses;
 
     public static UserResponse fromUser(final User user) {
-        List<String> roleGroupNames = user.getRoleGroups()
+        List<RoleGroupResponse> roleGroupResponses = user.getRoleGroups()
                 .stream()
-                .map(role -> role.getRoleGroupName())
+                .map(RoleGroupResponse::fromRoleGroup)
                 .toList();
 
         return UserResponse.builder()
@@ -57,7 +57,7 @@ public class UserResponse {
                 .fullName(user.getFullName())
                 .dateOfBirth(user.getDateOfBirth())
                 .address(user.getAddress())
-                .roleGroupNames(roleGroupNames)
+                .roleGroupResponses(roleGroupResponses)
                 .build();
     }
 
