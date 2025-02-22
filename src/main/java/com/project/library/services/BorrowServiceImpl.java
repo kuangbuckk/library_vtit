@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -75,8 +76,8 @@ public class BorrowServiceImpl implements IBorrowService {
         Borrow newBorrow = Borrow.builder()
                 .book(existingBook)
                 .user(existingUser)
-                .borrowAt(LocalDateTime.now())
                 .borrowAmount(borrowDTO.getBorrowAmount())
+                .borrowAt(LocalDateTime.now())
                 .returnAt(null)
                 .status(null)
                 .build();
@@ -97,10 +98,10 @@ public class BorrowServiceImpl implements IBorrowService {
             existingBook.setAmount(existingBook.getAmount() + existingBorrow.getBorrowAmount());
         }
 
-        if (borrowDTO.getStatus() == String.valueOf(BorrowStatus.BORROWED)) {
-            existingBorrow.setStatus(BorrowStatus.BORROWED);
+        if (Objects.equals(borrowDTO.getStatus(), String.valueOf(BorrowStatus.BORROWED))) {
             existingBook.setAmount(existingBook.getAmount() - borrowDTO.getBorrowAmount());
         }
+
         bookRepository.saveAndFlush(existingBook);
         borrowRepository.save(existingBorrow);
         return BorrowResponse.fromBorrow(existingBorrow);

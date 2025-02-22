@@ -34,6 +34,13 @@ public class BorrowResponse {
 
     @JsonProperty(value = "return_at")
     private LocalDateTime returnAt;
+
+    @JsonProperty(value = "created_at")
+    private LocalDateTime createdAt;
+
+    @JsonProperty(value = "updated_at")
+    private LocalDateTime updatedAt;
+
     private String status;
 
     public static BorrowResponse fromBorrow(Borrow borrow) {
@@ -46,6 +53,8 @@ public class BorrowResponse {
                 .borrowAmount(borrow.getBorrowAmount())
                 .borrowAt(borrow.getReturnAt())
                 .returnAt(borrow.getReturnAt())
+                .createdAt(borrow.getCreatedAt())
+                .updatedAt(borrow.getUpdatedAt())
                 .status(borrow.getStatus().toString())
                 .build();
     }

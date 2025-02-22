@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Borrow {
+public class Borrow extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID code;
@@ -38,12 +38,5 @@ public class Borrow {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private BorrowStatus status;
-
-    @PrePersist
-    protected void setDefaultStatus() {
-        if (this.status == null) {
-            this.status = BorrowStatus.BORROWED;
-        }
-    }
 }
 
