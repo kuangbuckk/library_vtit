@@ -2,6 +2,8 @@ package com.project.library.controllers;
 
 import com.project.library.dtos.FunctionDTO;
 import com.project.library.entities.Function;
+import com.project.library.responses.FunctionResponse;
+import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IFunctionService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,22 +14,23 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/functions")
+@RequestMapping("${api.prefix}/functions")
 @AllArgsConstructor
 public class FunctionController {
     private final IFunctionService functionService;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllFunctions() {
-        return ResponseEntity.ok(functionService.getAllFunctions());
+        return ResponseEntity.ok(GenericResponse.success(functionService.getAllFunctions()));
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<?> getFunction(@PathVariable String code) {
-        Function existingFunction = functionService.getFunctionByCode(code);
-        return ResponseEntity.ok(existingFunction);
+    public ResponseEntity<?> getFunction(@PathVariable UUID code) {
+        FunctionResponse existingFunction = functionService.getFunctionByCode(code);
+        return ResponseEntity.ok(GenericResponse.success(existingFunction));
     }
 
     @PostMapping("/")
@@ -42,14 +45,14 @@ public class FunctionController {
                     .toList();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
-        Function newFunction = functionService.addFunction(functionDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newFunction);
+        FunctionResponse newFunction = functionService.addFunction(functionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newFunction));
     }
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateFunction(
             @RequestBody @Valid FunctionDTO functionDTO,
-            @PathVariable String code,
+            @PathVariable UUID code,
             BindingResult result
     ) {
         if (result.hasErrors()) {
@@ -59,12 +62,12 @@ public class FunctionController {
                     .toList();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
-        Function existingFunction = functionService.getFunctionByCode(code);
-        return ResponseEntity.ok(existingFunction);
+        FunctionResponse existingFunction = functionService.getFunctionByCode(code);
+        return ResponseEntity.ok(GenericResponse.success(existingFunction));
     }
 
     @DeleteMapping("/{code}")
-    public ResponseEntity<?> deleteFunction(@PathVariable String code) {
+    public ResponseEntity<?> deleteFunction(@PathVariable UUID code) {
         functionService.deleteFunction(code);
         return ResponseEntity.ok("Deleted function");
     }

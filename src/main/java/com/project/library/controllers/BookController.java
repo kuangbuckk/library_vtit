@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("${api.prefix}/books")
 @AllArgsConstructor
 public class BookController {
     private final IBookService bookService;

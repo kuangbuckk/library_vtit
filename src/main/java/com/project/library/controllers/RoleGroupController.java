@@ -2,6 +2,8 @@ package com.project.library.controllers;
 
 import com.project.library.dtos.RoleGroupDTO;
 import com.project.library.entities.RoleGroup;
+import com.project.library.responses.GenericResponse;
+import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.interfaces.IRoleGroupService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,22 +14,23 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/role_groups")
+@RequestMapping("${api.prefix}/role_groups")
 @AllArgsConstructor
 public class RoleGroupController {
     private final IRoleGroupService roleGroupService;
 
     @GetMapping("/")
-    public ResponseEntity<List<RoleGroup>> getRoleGroups() {
-        return ResponseEntity.ok(roleGroupService.getRoleGroups());
+    public ResponseEntity<?> getRoleGroups() {
+        return ResponseEntity.ok(GenericResponse.success(roleGroupService.getRoleGroups()));
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<?> getRoleGroup(@PathVariable String code) {
-        RoleGroup existingRoleGroup = roleGroupService.getRoleGroupByCode(code);
-        return ResponseEntity.ok(existingRoleGroup);
+    public ResponseEntity<?> getRoleGroup(@PathVariable UUID code) {
+        RoleGroupResponse existingRoleGroup = roleGroupService.getRoleGroupByCode(code);
+        return ResponseEntity.ok(GenericResponse.success(existingRoleGroup));
     }
 
     @PostMapping("/")
@@ -40,16 +43,16 @@ public class RoleGroupController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
         }
-        RoleGroup newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newRoleGroup);
+        RoleGroupResponse newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newRoleGroup));
     }
 
     @PutMapping("/{code}")
     public ResponseEntity<?> updateRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
-            @PathVariable String code,
+            @PathVariable UUID code,
             BindingResult result
     ) {
         if (result.hasErrors()) {
@@ -57,17 +60,17 @@ public class RoleGroupController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
         }
-        RoleGroup updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
-        return ResponseEntity.ok(updatedRoleGroup);
+        RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
+        return ResponseEntity.ok(GenericResponse.success(updatedRoleGroup));
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<?> deleteRoleGroup(
-            @PathVariable String code
+            @PathVariable UUID code
     ) {
         roleGroupService.deleteRoleGroup(code);
-        return ResponseEntity.ok("Deleted role group successfully with code " + code);
+        return ResponseEntity.ok(GenericResponse.success(code));
     }
 }

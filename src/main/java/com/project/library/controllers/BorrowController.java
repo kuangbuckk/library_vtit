@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/borrows")
+@RequestMapping("${api.prefix}/borrows")
 @AllArgsConstructor
 public class BorrowController {
     private final IBorrowService borrowService;

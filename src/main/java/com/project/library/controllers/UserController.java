@@ -1,5 +1,6 @@
 package com.project.library.controllers;
 
+import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.User;
 import com.project.library.responses.GenericResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("${api.prefix}/users")
 @AllArgsConstructor
 public class UserController {
     private final IUserService userService;
@@ -38,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
-    @PostMapping("/")
+    @PostMapping("/register")
     public ResponseEntity<?> createUser(
             @RequestBody @Valid UserDTO userDTO,
             BindingResult result) {
@@ -71,5 +72,21 @@ public class UserController {
     public ResponseEntity<GenericResponse> deleteUser(@PathVariable UUID code) {
         userService.deleteUser(code);
         return ResponseEntity.ok(GenericResponse.success(code));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<GenericResponse> loginUser(
+            @RequestBody @Valid LoginDTO loginDTO,
+            BindingResult result
+    ) {
+        if (result.hasErrors()) {
+            List<String> errors = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+        }
+        String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
+        return ResponseEntity.ok(GenericResponse.success(token));
     }
 }

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/posts")
+@RequestMapping("${api.prefix}/posts")
 public class PostController {
     private final IPostService postService;
 

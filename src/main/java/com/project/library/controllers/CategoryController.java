@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("${api.prefix}/categories")
 @AllArgsConstructor
 public class CategoryController {
     //SpringBoot sẽ tự động tìm implementation của interface này và inject vào
