@@ -6,6 +6,7 @@ import com.project.library.entities.RoleGroup;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.FunctionRepository;
 import com.project.library.repositories.RoleGroupRepository;
+import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.interfaces.IRoleGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,42 +21,49 @@ public class RoleGroupServiceImpl implements IRoleGroupService {
     private final FunctionRepository functionRepository;
 
     @Override
-    public List<RoleGroup> getRoleGroups() {
-        return roleGroupRepository.findAll();
+    public List<RoleGroupResponse> getRoleGroups() {
+        return roleGroupRepository.findAll()
+                .stream()
+                .map(RoleGroupResponse::fromRoleGroup)
+                .toList();
     }
 
     @Override
-    public RoleGroup getRoleGroupByCode(String code) {
+    public RoleGroupResponse getRoleGroupByCode(UUID code) {
         RoleGroup roleGroup = roleGroupRepository
-                .findById(UUID.fromString(code))
+                .findById(code)
                 .orElseThrow(() -> new DataNotFoundException("Cant find role group by code " + code));
-        return roleGroup;
+        return RoleGroupResponse.fromRoleGroup(roleGroup);
     }
 
     @Override
-    public RoleGroup createRoleGroup(RoleGroupDTO roleGroupDTO) {
+    public RoleGroupResponse createRoleGroup(RoleGroupDTO roleGroupDTO) {
         List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionCodes());
         RoleGroup newRoleGroup = RoleGroup.builder()
                 .roleGroupName(roleGroupDTO.getRoleGroupName())
                 .description(roleGroupDTO.getDescription())
                 .functions(functions)
                 .build();
-        return roleGroupRepository.save(newRoleGroup);
+        roleGroupRepository.save(newRoleGroup);
+        return RoleGroupResponse.fromRoleGroup(newRoleGroup);
     }
 
     @Override
-    public RoleGroup updateRoleGroup(RoleGroupDTO roleGroupDTO, String code) {
+    public RoleGroupResponse updateRoleGroup(RoleGroupDTO roleGroupDTO, UUID code) {
         List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionCodes());
-        RoleGroup existingRoleGroup = getRoleGroupByCode(code);
+        RoleGroup existingRoleGroup = roleGroupRepository.findById(code)
+                .orElseThrow(() -> new DataNotFoundException("Cant find role group by code " + code));
+
         existingRoleGroup.setRoleGroupName(roleGroupDTO.getRoleGroupName());
         existingRoleGroup.setDescription(roleGroupDTO.getDescription());
         existingRoleGroup.setFunctions(functions);
 
-        return roleGroupRepository.save(existingRoleGroup);
+        roleGroupRepository.save(existingRoleGroup);
+        return RoleGroupResponse.fromRoleGroup(existingRoleGroup);
     }
 
     @Override
-    public void deleteRoleGroup(String code) {
-        roleGroupRepository.deleteById(UUID.fromString(code));
+    public void deleteRoleGroup(UUID code) {
+        roleGroupRepository.deleteById(code);
     }
 }

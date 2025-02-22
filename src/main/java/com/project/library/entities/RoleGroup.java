@@ -37,4 +37,9 @@ public class RoleGroup {
 
     @ManyToMany(mappedBy = "roleGroups")
     private List<User> users;
+
+    public static String ADMIN = "ADMIN";
+    public static String MANAGER = "MANAGER";
+    public static String LIBRARIAN = "LIBRARIAN";
+    public static String USER = "USER";
 }
