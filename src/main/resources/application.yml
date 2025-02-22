@@ -16,6 +16,8 @@ spring:
 server:
   servlet:
     context-path: /library-service
+api:
+  prefix: api/v1
 
 #spring doc configurations
 springdoc:
