@@ -14,6 +14,7 @@ import com.project.library.services.interfaces.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,8 +36,9 @@ public class UserServiceImpl implements IUserService {
     private final JwtTokenUtils jwtTokenUtils;
 
     @Override
-    public UserPageResponse getUsers(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
+    public UserPageResponse getUsers(int pageNumber, int size, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        Page<User> users = userRepository.findAll(pageable, keyword);
         int totalPages = users.getTotalPages();
         List<UserResponse> userResponses = users.getContent()
                 .stream()

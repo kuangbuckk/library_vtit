@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface IUserService {
     //CRUD
-    UserPageResponse getUsers(Pageable pageable);
+    UserPageResponse getUsers(int pageNumber, int size, String keyword);
     UserResponse getUserByCode(UUID code);
     UserResponse createUser(UserDTO User);
     UserResponse updateUser(UserDTO User, UUID code);

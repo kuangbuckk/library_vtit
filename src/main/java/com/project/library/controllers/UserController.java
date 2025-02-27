@@ -27,9 +27,10 @@ public class UserController {
     @GetMapping("/")
     public ResponseEntity<GenericResponse> getAllUsers(
             @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size
+            @RequestParam("size") int size,
+            @RequestParam("keyword") String keyword
     ) {
-        UserPageResponse userPageResponse = userService.getUsers(PageRequest.of(pageNumber, size));
+        UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, keyword);
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
     }
     
