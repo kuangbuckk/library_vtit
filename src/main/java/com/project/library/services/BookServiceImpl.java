@@ -11,7 +11,9 @@ import com.project.library.responses.BookResponse;
 import com.project.library.services.interfaces.IBookService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +26,9 @@ public class BookServiceImpl implements IBookService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public BookPageResponse getAllBooks(Pageable pageable) {
-        Page<Book> books = bookRepository.findAll(pageable);
+    public BookPageResponse getAllBooks(int pageNumber, int size, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber, size); //Sort.by("code").ascending()
+        Page<Book> books = bookRepository.findAll(pageable, keyword);
         int totalPage = books.getTotalPages();
         List<BookResponse> bookResponses = books.getContent()
                 .stream()

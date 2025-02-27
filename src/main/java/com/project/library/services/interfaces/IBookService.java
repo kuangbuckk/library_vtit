@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IBookService {
-    BookPageResponse getAllBooks(Pageable pageable);
+    BookPageResponse getAllBooks(int pageNumber, int size, String keyword);
     BookResponse getBookByCode(UUID code);
     BookResponse addBook(BookDTO bookDTO);
     BookResponse updateBook(BookDTO bookDTO, UUID code);

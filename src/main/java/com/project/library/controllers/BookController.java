@@ -27,11 +27,12 @@ public class BookController {
     private final IBookService bookService;
 
     @GetMapping("/")
-    public ResponseEntity<GenericResponse<BookPageResponse>> getAllBooks(
-            @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size
+    public ResponseEntity<GenericResponse<BookPageResponse>> getBooks(
+            @RequestParam(defaultValue = "0", name = "page_number") int pageNumber,
+            @RequestParam(defaultValue = "5", name = "size") int size,
+            @RequestParam(defaultValue = "") String keyword
     ) {
-        BookPageResponse bookPageResponse = bookService.getAllBooks(PageRequest.of(pageNumber, size));
+        BookPageResponse bookPageResponse = bookService.getAllBooks(pageNumber, size, keyword);
         return ResponseEntity.ok(GenericResponse.success(bookPageResponse));
     }
 
