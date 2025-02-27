@@ -15,15 +15,23 @@ public class GenericResponse<T> {
     private String message;
     private T data;
 
-    public static <T> GenericResponse<T> success(T data) {
+    public static <T> GenericResponse<T> success(String code, String message, T data) {
         return GenericResponse.<T>builder()
-                .code("200")
-                .message("success")
+                .code(code)
+                .message(message)
                 .data(data)
                 .build();
     }
 
-    public static <T> GenericResponse<T> error(String message) {
-        return GenericResponse.<T>builder().code("500").message(message).data(null).build();
+    public static <T> GenericResponse<T> success(T data) {
+        return GenericResponse.<T>builder()
+                .code("200")
+                .message("Success")
+                .data(data)
+                .build();
+    }
+
+    public static <T> GenericResponse<T> error(String code, String message) {
+        return GenericResponse.<T>builder().code(code).message(message).data(null).build();
     }
 }
