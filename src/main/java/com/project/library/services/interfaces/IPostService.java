@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IPostService {
-    PostPageResponse getAllPosts(Pageable pageable);
+    PostPageResponse getAllPosts(int pageNumber, int size, String keyword);
     PostResponse getPostByCode(UUID code);
     PostResponse addPost(PostDTO postDTO);
     PostResponse updatePost(PostDTO postDTO, UUID code);

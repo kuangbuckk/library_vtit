@@ -13,6 +13,7 @@ import com.project.library.responses.PostResponse;
 import com.project.library.services.interfaces.IPostService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,9 @@ public class PostServiceImpl implements IPostService {
     private final UserRepository userRepository;
 
     @Override
-    public PostPageResponse getAllPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findAll(pageable);
+    public PostPageResponse getAllPosts(int pageNumber, int size, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        Page<Post> posts = postRepository.findAll(pageable, keyword);
         int totalPages = posts.getTotalPages();
         List<PostResponse> postResponseList = posts.getContent()
                 .stream()

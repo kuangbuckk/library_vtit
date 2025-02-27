@@ -5,12 +5,9 @@ import com.project.library.responses.GenericResponse;
 import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
 import com.project.library.services.interfaces.IPostService;
-import com.project.library.utils.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -28,9 +25,10 @@ public class PostController {
     @GetMapping("/")
     public ResponseEntity<GenericResponse> getAllPosts(
             @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size
+            @RequestParam("size") int size,
+            @RequestParam("keyword") String keyword
     ) {
-        PostPageResponse postPageResponse = postService.getAllPosts(PageRequest.of(pageNumber, size));
+        PostPageResponse postPageResponse = postService.getAllPosts(pageNumber, size, keyword);
         return ResponseEntity.ok(GenericResponse.success(postPageResponse));
     }
 
