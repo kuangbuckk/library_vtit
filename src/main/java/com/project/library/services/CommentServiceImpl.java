@@ -10,6 +10,7 @@ import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.CommentResponse;
 import com.project.library.services.interfaces.ICommentService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class CommentServiceImpl implements ICommentService {
     public CommentResponse getCommentByCode(UUID code) {
         Comment existingComment = commentRepository.findById(code)
                 .orElseThrow(()->
-                        new DataNotFoundException("Comment not found with code " + code));
+                        new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
         return CommentResponse.fromComment(existingComment);
     }
 
@@ -44,10 +45,10 @@ public class CommentServiceImpl implements ICommentService {
     public CommentResponse addComment(CommentDTO commentDTO) {
         User existingUser = userRepository.findById(commentDTO.getUserCode())
                 .orElseThrow(()->
-                        new DataNotFoundException("User not found with code " + commentDTO.getUserCode()));
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, commentDTO.getUserCode()));
         Post existingPost = postRepository.findById(commentDTO.getPostCode())
                 .orElseThrow(() ->
-                        new DataNotFoundException("Post not found with code " + commentDTO.getPostCode()));
+                        new DataNotFoundException(MessageKeys.POST_NOT_FOUND, commentDTO.getPostCode()));
         Comment newComment = Comment.builder()
                 .content(commentDTO.getContent())
                 .post(existingPost)
@@ -60,7 +61,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public CommentResponse updateComment(CommentDTO commentDTO, UUID code) {
         Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Comment not found with code " + code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
         existingComment.setContent(commentDTO.getContent());
         return CommentResponse.fromComment(existingComment);
     }

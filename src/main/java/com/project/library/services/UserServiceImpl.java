@@ -11,18 +11,16 @@ import com.project.library.repositories.UserRepository;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,14 +51,14 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserResponse getUserByCode(UUID code) {
         User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("User not found with code" + code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
         return UserResponse.fromUser(existingUser);
     }
 
     @Override
     public UserResponse createUser(UserDTO userDTO) {
         if (userDTO.getRoleGroupCodes().isEmpty()) {
-            throw new DataNotFoundException("Role group code is empty");
+            throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
         }
         List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupCodes());
         applicationEventPublisher.publishEvent(new UserRegisterEvent(userDTO.getUsername()));
@@ -82,7 +80,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserResponse updateUser(UserDTO User, UUID code) {
         User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("User not found with code" + code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
         existingUser.setFullName(User.getFullName());
         existingUser.setUsername(User.getUsername());
         existingUser.setEmail(User.getEmail());
@@ -101,12 +99,12 @@ public class UserServiceImpl implements IUserService {
     @Override
     public String login(String username, String password) {
         User existingUser = userRepository.findByUsername(username)
-                .orElseThrow(()-> new BadCredentialsException("Username/password is not correct"));
+                .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Wrong password");
+            throw new BadCredentialsException(MessageKeys.LOGIN_FAILED);
         }
         if (existingUser.getRoleGroups().isEmpty()) {
-            throw new DataNotFoundException("Role group code is empty");
+            throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
         }
         return jwtTokenUtils.generateToken(existingUser);
     }

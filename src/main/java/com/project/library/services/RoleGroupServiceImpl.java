@@ -8,6 +8,7 @@ import com.project.library.repositories.FunctionRepository;
 import com.project.library.repositories.RoleGroupRepository;
 import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.interfaces.IRoleGroupService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class RoleGroupServiceImpl implements IRoleGroupService {
     public RoleGroupResponse getRoleGroupByCode(UUID code) {
         RoleGroup roleGroup = roleGroupRepository
                 .findById(code)
-                .orElseThrow(() -> new DataNotFoundException("Cant find role group by code " + code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, code));
         return RoleGroupResponse.fromRoleGroup(roleGroup);
     }
 
@@ -52,7 +53,7 @@ public class RoleGroupServiceImpl implements IRoleGroupService {
     public RoleGroupResponse updateRoleGroup(RoleGroupDTO roleGroupDTO, UUID code) {
         List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionCodes());
         RoleGroup existingRoleGroup = roleGroupRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException("Cant find role group by code " + code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, code));
 
         existingRoleGroup.setRoleGroupName(roleGroupDTO.getRoleGroupName());
         existingRoleGroup.setDescription(roleGroupDTO.getDescription());

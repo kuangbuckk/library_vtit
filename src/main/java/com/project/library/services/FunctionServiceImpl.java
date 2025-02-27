@@ -6,6 +6,7 @@ import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.FunctionRepository;
 import com.project.library.responses.FunctionResponse;
 import com.project.library.services.interfaces.IFunctionService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class FunctionServiceImpl implements IFunctionService {
     public FunctionResponse getFunctionByCode(UUID code) {
         Function existingFunction = functionRepository
                 .findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Can't find function with code "+ code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, code));
         return FunctionResponse.fromFunction(existingFunction);
     }
 
@@ -44,7 +45,7 @@ public class FunctionServiceImpl implements IFunctionService {
     @Override
     public FunctionResponse updateFunction(FunctionDTO functionDTO, UUID code) {
         Function existingFunction = functionRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Can't find function with code "+ code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, code));
         existingFunction.setDescription(functionDTO.getDescription());
         existingFunction.setFunctionName(functionDTO.getFunctionName());
 

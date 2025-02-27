@@ -6,12 +6,14 @@ import com.project.library.entities.Borrow;
 import com.project.library.entities.BorrowStatus;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
+import com.project.library.exceptions.DataOutOfBoundException;
 import com.project.library.repositories.BookRepository;
 import com.project.library.repositories.BorrowRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
 import com.project.library.services.interfaces.IBorrowService;
+import com.project.library.utils.MessageKeys;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,7 +51,7 @@ public class BorrowServiceImpl implements IBorrowService {
     public BorrowResponse getBorrowByCode(UUID code) {
         Borrow existingBorrow = borrowRepository
                 .findById(code)
-                .orElseThrow(() -> new DataNotFoundException("Borrow with code " + code + " not found"));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         return BorrowResponse.fromBorrow(existingBorrow);
     }
 
@@ -57,20 +59,20 @@ public class BorrowServiceImpl implements IBorrowService {
     public BorrowResponse addBorrow(BorrowDTO borrowDTO) {
         Book existingBook = bookRepository.findById(UUID.fromString(borrowDTO.getBookCode()))
                 .orElseThrow(() ->
-                        new DataNotFoundException("Book with code " + borrowDTO.getBookCode() + " not found")
+                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, UUID.fromString(borrowDTO.getBookCode()))
                 );
         int remainBookCount = existingBook.getAmount();
         if (!isAvailableToBorrow(remainBookCount)) {
-            throw new DataNotFoundException("This book is not available to borrow!");
+            throw new DataOutOfBoundException(MessageKeys.BOOK_OUT_OF_STOCK);
         } else if (borrowDTO.getBorrowAmount() > existingBook.getAmount()) {
-            throw new DataNotFoundException("There is not enough borrow amount!");
+            throw new DataOutOfBoundException(MessageKeys.BOOK_OUT_OF_STOCK);
         }
         existingBook.setAmount(existingBook.getAmount() - borrowDTO.getBorrowAmount());
         bookRepository.saveAndFlush(existingBook);
 
         User existingUser = userRepository.findById(UUID.fromString(borrowDTO.getUserCode()))
                 .orElseThrow(() ->
-                        new DataNotFoundException("User with code " + borrowDTO.getUserCode() + " not found")
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, UUID.fromString(borrowDTO.getUserCode()))
                 );
 
         Borrow newBorrow = Borrow.builder()
@@ -88,7 +90,7 @@ public class BorrowServiceImpl implements IBorrowService {
     @Override
     public BorrowResponse updateBorrow(BorrowDTO borrowDTO, UUID code) {
         Borrow existingBorrow = borrowRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Borrow with code " + code + " not found"));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         Book existingBook = existingBorrow.getBook();
 
         if (borrowDTO.getStatus().equals(String.valueOf(BorrowStatus.RETURNED))) {

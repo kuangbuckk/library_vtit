@@ -11,6 +11,7 @@ import com.project.library.repositories.UserRepository;
 import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
 import com.project.library.services.interfaces.IPostService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,7 +46,7 @@ public class PostServiceImpl implements IPostService {
     @Override
     public PostResponse getPostByCode(UUID code) {
         Post existingPost = postRepository.findById((code))
-                .orElseThrow(() -> new DataNotFoundException("Post with code " + code + " not found"));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
         return PostResponse.fromPost(existingPost);
     }
 
@@ -54,10 +55,10 @@ public class PostServiceImpl implements IPostService {
         Book existingBook = bookRepository
                 .findById(postDTO.getBookCode())
                 .orElseThrow(() ->
-                        new DataNotFoundException("Book with code " + postDTO.getBookCode() + " not found"));
+                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, postDTO.getBookCode()));
         User user = userRepository.findById(postDTO.getUserCode())
                 .orElseThrow(() ->
-                        new DataNotFoundException("User with code " + postDTO.getUserCode() + " not found"));
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, postDTO.getUserCode()));
         Post newPost = Post.builder()
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
@@ -71,7 +72,7 @@ public class PostServiceImpl implements IPostService {
     @Override
     public PostResponse updatePost(PostDTO postDTO, UUID code) {
         Post existingPost = postRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Post with code " + code + " not found"));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
         existingPost.setTitle(postDTO.getTitle());
         existingPost.setContent(postDTO.getContent());
         postRepository.save(existingPost);

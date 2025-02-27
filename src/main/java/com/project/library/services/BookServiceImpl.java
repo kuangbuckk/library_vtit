@@ -9,6 +9,7 @@ import com.project.library.repositories.CategoryRepository;
 import com.project.library.responses.BookPageResponse;
 import com.project.library.responses.BookResponse;
 import com.project.library.services.interfaces.IBookService;
+import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,7 +46,7 @@ public class BookServiceImpl implements IBookService {
     public BookResponse getBookByCode(UUID code) {
         Book book = bookRepository
                 .findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Can't find book with code: " + code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         return BookResponse.fromBook(book);
     }
 
@@ -76,7 +77,7 @@ public class BookServiceImpl implements IBookService {
         List<Category> categories = categoryRepository.findCategoriesByCodeIn(categoryCodes);
 
         Book existingBook = bookRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException("Can't find book with code: " + code));
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
 
         existingBook.setTitle(bookDTO.getTitle());
         existingBook.setAuthor(bookDTO.getAuthor());
