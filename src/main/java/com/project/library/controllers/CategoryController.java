@@ -1,14 +1,16 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.CategoryDTO;
 import com.project.library.entities.Category;
 import com.project.library.responses.CategoryResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.CategoryServiceImpl;
 import com.project.library.services.interfaces.ICategoryService;
-import com.project.library.utils.ResponseUtil;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class CategoryController {
     //SpringBoot sẽ tự động tìm implementation của interface này và inject vào
     private final ICategoryService categoryService;
+    private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
     public ResponseEntity<GenericResponse> getAllCategories() {
@@ -47,10 +50,17 @@ public class CategoryController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(
+                            MessageKeys.INSERT_CATEGORY_FAILED,
+                            errors.toString())
+                    );
         }
         CategoryResponse newCategory = categoryService.addCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newCategory));
+        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+                MessageKeys.INSERT_CATEGORY_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_CATEGORY_SUCCESSFULLY),
+                newCategory));
     }
 
     @PutMapping("/{code}")
@@ -64,15 +74,25 @@ public class CategoryController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(
+                            MessageKeys.UPDATE_CATEGORY_FAILED,
+                            errors.toString())
+                    );
         }
         CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, code);
-        return ResponseEntity.ok(GenericResponse.success(updatedCategory));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY),
+                updatedCategory));
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<?> deleteCategory(@PathVariable String code) {
         categoryService.deleteCategory(UUID.fromString(code));
-        return ResponseEntity.ok("Deleted " + code + " category");
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_CATEGORY_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY),
+                code));
     }
 }

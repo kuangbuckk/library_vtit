@@ -1,11 +1,13 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.BorrowDTO;
 import com.project.library.entities.Borrow;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IBorrowService;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class BorrowController {
     private final IBorrowService borrowService;
+    private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
     public ResponseEntity<GenericResponse> getBorrows(
@@ -48,10 +51,17 @@ public class BorrowController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(GenericResponse.error(
+                            MessageKeys.INSERT_BORROW_FAILED,
+                            errors.toString())
+                    );
         }
         BorrowResponse borrowResponse = borrowService.addBorrow(borrowDTO);
-        return ResponseEntity.ok(GenericResponse.success(borrowResponse));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.INSERT_BORROW_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_BORROW_SUCCESSFULLY),
+                borrowResponse));
     }
 
     @PutMapping("/{code}")
@@ -64,15 +74,25 @@ public class BorrowController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(GenericResponse.error(
+                            MessageKeys.UPDATE_BORROW_FAILED,
+                            errors.toString())
+                    );
         }
         BorrowResponse updateBorrowResponse = borrowService.updateBorrow(borrowDTO, code);
-        return ResponseEntity.ok(GenericResponse.success(updateBorrowResponse));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.UPDATE_BORROW_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_BORROW_SUCCESSFULLY),
+                updateBorrowResponse));
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<GenericResponse> deleteBorrow(@PathVariable String code) {
         borrowService.deleteBorrow(UUID.fromString(code));
-        return ResponseEntity.ok(GenericResponse.success(code));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_BORROW_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BORROW_SUCCESSFULLY),
+                code));
     }
 }

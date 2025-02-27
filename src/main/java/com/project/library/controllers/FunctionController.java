@@ -1,10 +1,12 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.FunctionDTO;
 import com.project.library.entities.Function;
 import com.project.library.responses.FunctionResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IFunctionService;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class FunctionController {
     private final IFunctionService functionService;
+    private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllFunctions() {
@@ -46,7 +49,10 @@ public class FunctionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
         FunctionResponse newFunction = functionService.addFunction(functionDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newFunction));
+        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+                MessageKeys.INSERT_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_FUNCTION_SUCCESSFULLY),
+                newFunction));
     }
 
     @PutMapping("/{code}")
@@ -63,7 +69,10 @@ public class FunctionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
         FunctionResponse existingFunction = functionService.getFunctionByCode(code);
-        return ResponseEntity.ok(GenericResponse.success(existingFunction));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY),
+                existingFunction));
     }
 
     @DeleteMapping("/{code}")

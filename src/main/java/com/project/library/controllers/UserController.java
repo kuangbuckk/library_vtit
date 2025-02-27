@@ -1,5 +1,6 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.User;
@@ -7,6 +8,7 @@ import com.project.library.responses.GenericResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +25,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserController {
     private final IUserService userService;
-    
+    private final LocalizationUtils localizationUtils;
+
     @GetMapping("/")
     public ResponseEntity<GenericResponse> getAllUsers(
             @RequestParam("page_number") int pageNumber,
@@ -46,7 +49,8 @@ public class UserController {
             BindingResult result) {
         if (result.hasErrors()) {
             List<String> errors = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(MessageKeys.INSERT_USER_FAILED, errors.toString()));
         }
         UserResponse userResponse = userService.createUser(userDTO);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
@@ -63,7 +67,8 @@ public class UserController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(MessageKeys.UPDATE_USER_FAILED, errors.toString()));
         }
         UserResponse userResponse = userService.updateUser(userDTO, code);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
@@ -85,9 +90,12 @@ public class UserController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest().body(GenericResponse.error(MessageKeys.LOGIN_FAILED, errors.toString()));
         }
         String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
-        return ResponseEntity.ok(GenericResponse.success(token));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.LOGIN_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY),
+                token));
     }
 }

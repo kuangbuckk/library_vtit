@@ -1,10 +1,12 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.RoleGroupDTO;
 import com.project.library.entities.RoleGroup;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.interfaces.IRoleGroupService;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RoleGroupController {
     private final IRoleGroupService roleGroupService;
+    private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
     public ResponseEntity<?> getRoleGroups() {
@@ -43,10 +46,14 @@ public class RoleGroupController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(GenericResponse.error(MessageKeys.INSERT_ROLE_GROUP_FAILED, errors.toString()));
         }
         RoleGroupResponse newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(newRoleGroup));
+        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+                MessageKeys.INSERT_ROLE_GROUP_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_ROLE_GROUP_SUCCESSFULLY),
+                newRoleGroup));
     }
 
     @PutMapping("/{code}")
@@ -60,10 +67,15 @@ public class RoleGroupController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(GenericResponse.error(MessageKeys.UPDATE_ROLE_GROUP_FAILED, errors.toString()));
         }
         RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
-        return ResponseEntity.ok(GenericResponse.success(updatedRoleGroup));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY),
+                updatedRoleGroup)
+        );
     }
 
     @DeleteMapping("/{code}")

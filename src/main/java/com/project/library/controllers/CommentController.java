@@ -1,11 +1,12 @@
 package com.project.library.controllers;
 
+import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.CommentDTO;
 import com.project.library.entities.Comment;
 import com.project.library.responses.CommentResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.ICommentService;
-import com.project.library.utils.ResponseUtil;
+import com.project.library.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CommentController {
     private final ICommentService commentService;
+    private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
     public ResponseEntity<?> getAllComments() {
@@ -42,9 +44,16 @@ public class CommentController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(
+                            MessageKeys.INSERT_COMMENT_FAILED,
+                            errors.toString())
+                    );
         }
-        return ResponseEntity.ok(GenericResponse.success(commentService.addComment(commentDTO)));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.INSERT_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_COMMENT_SUCCESSFULLY),
+                commentService.addComment(commentDTO)));
     }
 
     @PutMapping("/{code}")
@@ -58,14 +67,25 @@ public class CommentController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(errors.toString()));
+            return ResponseEntity.badRequest()
+                    .body(GenericResponse.error(
+                            MessageKeys.UPDATE_COMMENT_FAILED,
+                            errors.toString())
+                    );
         }
-        return ResponseEntity.ok(commentService.updateComment(commentDTO, code));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_COMMENT_SUCCESSFULLY),
+                commentService.updateComment(commentDTO, code))
+        );
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<?> deleteComment(@PathVariable("code") UUID code) {
         commentService.deleteComment(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_COMMENT_SUCCESSFULLY),
+                code));
     }
 }
