@@ -1,9 +1,9 @@
 package com.project.library.exceptions;
 
 import com.project.library.responses.GenericResponse;
-import com.project.library.utils.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,6 +15,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GenericResponse<Object>> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(e.getMessage()));
     }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<GenericResponse<Object>> handleUsernameNotFoundExceptionException(final UsernameNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.error(e.getMessage()));
+    }
+
 
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<GenericResponse<Object>> handleDataNotFoundException(final DataNotFoundException e) {
