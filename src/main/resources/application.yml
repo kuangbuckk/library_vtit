@@ -2,9 +2,9 @@ spring:
   application:
     name: library
   datasource:
-    url: ${DATASOURCE_URL}
-    username: ${DATASOURCE_USER}
-    password: ${DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://localhost:5433/library
+    username: postgres
+    password: phandinhphung30
   jpa:
     show-sql: true
     hibernate:
@@ -13,11 +13,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+  messages:
+    basename: i18n/messages
+  main:
+    allow-bean-definition-overriding: true
 server:
   servlet:
     context-path: /library-service
 api:
   prefix: api/v1
+jwt:
+  expiration: 2592000 #30 days = 30 * 24 * 60 * 60
+  secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
 
 #spring doc configurations
 springdoc:

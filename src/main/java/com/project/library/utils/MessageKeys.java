@@ -75,4 +75,6 @@ public class MessageKeys {
     public static final String WRONG_PHONE_PASSWORD = "user.login.wrong_phone_password";
     public static final String ROLE_DOES_NOT_EXISTS = "user.login.role_not_exist";
 
+    public static final String ILLEGAL_INPUT_ARGUMENT = "illegal.input.argument";
+
 }
