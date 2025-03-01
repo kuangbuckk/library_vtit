@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -42,21 +43,10 @@ public class PostController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> addPost(
-            @RequestBody @Valid PostDTO postDTO,
-            BindingResult result
+            @RequestBody @Valid PostDTO postDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                            MessageKeys.INSERT_POST_FAILED,
-                            errors.toString())
-                    );
-        }
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.INSERT_POST_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_POST_SUCCESSFULLY),
@@ -64,19 +54,11 @@ public class PostController {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> updatePost(
             @RequestBody @Valid PostDTO postDTO,
-            BindingResult result,
             @PathVariable("code") UUID code
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(MessageKeys.UPDATE_POST_FAILED, errors.toString()));
-        }
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_POST_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_POST_SUCCESSFULLY),
@@ -84,6 +66,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> deletePost(@PathVariable("code") UUID code) {
         postService.deletePost(code);
         return ResponseEntity.ok().body(GenericResponse.success(code));

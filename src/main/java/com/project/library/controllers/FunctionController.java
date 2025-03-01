@@ -38,16 +38,8 @@ public class FunctionController {
 
     @PostMapping("/")
     public ResponseEntity<?> addNewFunction(
-            @RequestBody @Valid FunctionDTO functionDTO,
-            BindingResult result
+            @RequestBody @Valid FunctionDTO functionDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
         FunctionResponse newFunction = functionService.addFunction(functionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
                 MessageKeys.INSERT_FUNCTION_SUCCESSFULLY,
@@ -58,16 +50,8 @@ public class FunctionController {
     @PutMapping("/{code}")
     public ResponseEntity<?> updateFunction(
             @RequestBody @Valid FunctionDTO functionDTO,
-            @PathVariable UUID code,
-            BindingResult result
+            @PathVariable UUID code
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        }
         FunctionResponse existingFunction = functionService.getFunctionByCode(code);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY,

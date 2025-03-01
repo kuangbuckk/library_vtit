@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -37,18 +38,10 @@ public class RoleGroupController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addNewRoleGroup(
-            @RequestBody @Valid RoleGroupDTO roleGroupDTO,
-            BindingResult result
+            @RequestBody @Valid RoleGroupDTO roleGroupDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(GenericResponse.error(MessageKeys.INSERT_ROLE_GROUP_FAILED, errors.toString()));
-        }
         RoleGroupResponse newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
                 MessageKeys.INSERT_ROLE_GROUP_SUCCESSFULLY,
@@ -57,19 +50,11 @@ public class RoleGroupController {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
-            @PathVariable UUID code,
-            BindingResult result
+            @PathVariable UUID code
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(GenericResponse.error(MessageKeys.UPDATE_ROLE_GROUP_FAILED, errors.toString()));
-        }
         RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY,
@@ -79,6 +64,7 @@ public class RoleGroupController {
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRoleGroup(
             @PathVariable UUID code
     ) {

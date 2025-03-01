@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class UserController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     public ResponseEntity<GenericResponse> getAllUsers(
             @RequestParam("page_number") int pageNumber,
             @RequestParam("size") int size,
@@ -38,6 +40,7 @@ public class UserController {
     }
     
     @GetMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> getUserByCode(@PathVariable UUID code) {
         UserResponse userResponse = userService.getUserByCode(code);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
@@ -45,36 +48,24 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(
-            @RequestBody @Valid UserDTO userDTO,
-            BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(MessageKeys.INSERT_USER_FAILED, errors.toString()));
-        }
+            @RequestBody @Valid UserDTO userDTO) {
         UserResponse userResponse = userService.createUser(userDTO);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> updateUser(
             @RequestBody @Valid UserDTO userDTO,
-            @PathVariable UUID code,
-            BindingResult result
+            @PathVariable UUID code
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(MessageKeys.UPDATE_USER_FAILED, errors.toString()));
-        }
+
         UserResponse userResponse = userService.updateUser(userDTO, code);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<GenericResponse> deleteUser(@PathVariable UUID code) {
         userService.deleteUser(code);
         return ResponseEntity.ok(GenericResponse.success(code));
@@ -82,16 +73,8 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<GenericResponse> loginUser(
-            @RequestBody @Valid LoginDTO loginDTO,
-            BindingResult result
+            @RequestBody @Valid LoginDTO loginDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(MessageKeys.LOGIN_FAILED, errors.toString()));
-        }
         String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.LOGIN_SUCCESSFULLY,

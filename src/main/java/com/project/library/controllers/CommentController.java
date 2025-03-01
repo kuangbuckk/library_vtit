@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -38,18 +39,8 @@ public class CommentController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                            MessageKeys.INSERT_COMMENT_FAILED,
-                            errors.toString())
-                    );
-        }
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.INSERT_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_COMMENT_SUCCESSFULLY),
@@ -57,22 +48,11 @@ public class CommentController {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<?> updateComment(
             @PathVariable("code") UUID code,
-            @RequestBody @Valid CommentDTO commentDTO,
-            BindingResult result
+            @RequestBody @Valid CommentDTO commentDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                            MessageKeys.UPDATE_COMMENT_FAILED,
-                            errors.toString())
-                    );
-        }
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_COMMENT_SUCCESSFULLY),
@@ -81,6 +61,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<?> deleteComment(@PathVariable("code") UUID code) {
         commentService.deleteComment(code);
         return ResponseEntity.ok(GenericResponse.success(

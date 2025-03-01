@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -41,21 +42,10 @@ public class CategoryController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> addCategory(
-            @RequestBody @Valid CategoryDTO categoryDTO,
-            BindingResult result
+            @RequestBody @Valid CategoryDTO categoryDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                            MessageKeys.INSERT_CATEGORY_FAILED,
-                            errors.toString())
-                    );
-        }
         CategoryResponse newCategory = categoryService.addCategory(categoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
                 MessageKeys.INSERT_CATEGORY_SUCCESSFULLY,
@@ -64,22 +54,11 @@ public class CategoryController {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> updateCategory(
             @PathVariable UUID code,
-            @RequestBody @Valid CategoryDTO categoryDTO,
-            BindingResult result
+            @RequestBody @Valid CategoryDTO categoryDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                            MessageKeys.UPDATE_CATEGORY_FAILED,
-                            errors.toString())
-                    );
-        }
         CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, code);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY,
@@ -88,6 +67,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> deleteCategory(@PathVariable String code) {
         categoryService.deleteCategory(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(

@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -47,22 +48,10 @@ public class BookController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     public ResponseEntity<?> createBook(
-            @RequestBody @Valid BookDTO bookDTO,
-            BindingResult result
+            @RequestBody @Valid BookDTO bookDTO
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result
-                    .getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest()
-                    .body(GenericResponse.error(
-                    MessageKeys.INSERT_BOOK_FAILED,
-                    errors.toString())
-            );
-        }
         BookResponse newBookResponse = bookService.addBook(bookDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GenericResponse.success(
@@ -72,22 +61,11 @@ public class BookController {
     }
 
     @PutMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     public ResponseEntity<GenericResponse> updateBook(
             @RequestBody @Valid BookDTO bookDTO,
-            BindingResult result,
             @PathVariable String code
     ) {
-        if (result.hasErrors()) {
-            List<String> errors = result
-                    .getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(GenericResponse.error(
-                    MessageKeys.UPDATE_BOOK_FAILED,
-                    errors.toString())
-            );
-        }
         BookResponse updatedBook = bookService.updateBook(bookDTO, UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_BOOK_SUCCESSFULLY,
@@ -96,6 +74,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> deleteBook(@PathVariable String code) {
         bookService.deleteBook(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
@@ -103,4 +82,14 @@ public class BookController {
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
                 code));
     }
+
+//    @DeleteMapping("/destroy/{code}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ResponseEntity<?> destroyBook(@PathVariable String code) {
+//        bookService.destroyBook(UUID.fromString(code));
+//        return ResponseEntity.ok(GenericResponse.success(
+//                MessageKeys.DESTROY_BOOK_SUCCESSFULLY,
+//                localizationUtils.getLocalizedMessage(MessageKeys.DESTROY_BOOK_SUCCESSFULLY),
+//                code));
+//    }
 }
