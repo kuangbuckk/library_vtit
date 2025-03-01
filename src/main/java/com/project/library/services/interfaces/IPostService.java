@@ -14,5 +14,6 @@ public interface IPostService {
     PostResponse getPostByCode(UUID code);
     PostResponse addPost(PostDTO postDTO);
     PostResponse updatePost(PostDTO postDTO, UUID code);
-    void deletePost(UUID code);
+    PostResponse deletePost(UUID code);
+    void destroyPost(UUID code);
 }

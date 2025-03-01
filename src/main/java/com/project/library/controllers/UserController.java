@@ -53,6 +53,17 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<GenericResponse> loginUser(
+            @RequestBody @Valid LoginDTO loginDTO
+    ) {
+        String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.LOGIN_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY),
+                token));
+    }
+
     @PutMapping("/{code}")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<GenericResponse> updateUser(
@@ -71,14 +82,10 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success(code));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<GenericResponse> loginUser(
-            @RequestBody @Valid LoginDTO loginDTO
-    ) {
-        String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
-        return ResponseEntity.ok(GenericResponse.success(
-                MessageKeys.LOGIN_SUCCESSFULLY,
-                localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY),
-                token));
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    public ResponseEntity<GenericResponse> destroyUser(@PathVariable UUID code) {
+        userService.destroyUser(code);
+        return ResponseEntity.ok(GenericResponse.success(code));
     }
 }

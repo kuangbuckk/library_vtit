@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +52,7 @@ public class BookServiceImpl implements IBookService {
     }
 
     @Override
+    @Transactional
     public BookResponse addBook(BookDTO bookDTO) {
         List<UUID> categoryCodes = bookDTO.getCategoryCodes()
                 .stream()
@@ -69,6 +71,7 @@ public class BookServiceImpl implements IBookService {
     }
 
     @Override
+    @Transactional
     public BookResponse updateBook(BookDTO bookDTO, UUID code) {
         List<UUID> categoryCodes = bookDTO.getCategoryCodes()
                 .stream()
@@ -89,7 +92,19 @@ public class BookServiceImpl implements IBookService {
     }
 
     @Override
-    public void deleteBook(UUID code) {
-        bookRepository.deleteById(code);
+    public BookResponse deleteBook(UUID code) {
+        Book book = bookRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+        book.setIsDeleted(true);
+        bookRepository.save(book);
+        return BookResponse.fromBook(book);
+    }
+
+    @Override
+    @Transactional
+    public void destroyBook(UUID code) {
+        Book book = bookRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+        bookRepository.delete(book);
     }
 }

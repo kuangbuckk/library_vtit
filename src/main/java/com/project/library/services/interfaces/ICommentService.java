@@ -12,5 +12,6 @@ public interface ICommentService {
     CommentResponse getCommentByCode(UUID code);
     CommentResponse addComment(CommentDTO CommentDTO);
     CommentResponse updateComment(CommentDTO CommentDTO, UUID code);
-    void deleteComment(UUID code);
+    CommentResponse deleteComment(UUID code);
+    void destroyComment(UUID code);
 }

@@ -16,7 +16,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +53,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    @Transactional
     public PostResponse addPost(PostDTO postDTO) {
         Book existingBook = bookRepository
                 .findById(postDTO.getBookCode())
@@ -70,9 +73,14 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    @Transactional
     public PostResponse updatePost(PostDTO postDTO, UUID code) {
+
         Post existingPost = postRepository.findById(code)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+        if (SecurityContextHolder.getContext().getAuthentication().getCredentials() != existingPost.getCreatedBy().getUsername()) {
+
+        }
         existingPost.setTitle(postDTO.getTitle());
         existingPost.setContent(postDTO.getContent());
         postRepository.save(existingPost);
@@ -80,7 +88,20 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public void deletePost(UUID code) {
-        postRepository.deleteById(code);
+    @Transactional
+    public PostResponse deletePost(UUID code) {
+        Post existingPost = postRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+        existingPost.setIsDeleted(true);
+        postRepository.save(existingPost);
+        return PostResponse.fromPost(existingPost);
+    }
+
+    @Override
+    @Transactional
+    public void destroyPost(UUID code) {
+        Post existingPost = postRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+        postRepository.delete(existingPost);
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserResponse createUser(UserDTO userDTO) {
         if (userDTO.getRoleGroupCodes().isEmpty()) {
             throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
@@ -78,6 +80,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserResponse updateUser(UserDTO User, UUID code) {
         User existingUser = userRepository.findById(code)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
@@ -92,8 +95,22 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void deleteUser(UUID code) {
-        userRepository.deleteById(code);
+    @Transactional
+    public UserResponse deleteUser(UUID code) {
+        User existingUser = userRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+        existingUser.setIsDeleted(true);
+        existingUser.setIsActive(false);
+        userRepository.save(existingUser);
+        return UserResponse.fromUser(existingUser);
+    }
+
+    @Override
+    @Transactional
+    public void destroyUser(UUID code) {
+        User existingUser = userRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+        userRepository.delete(existingUser);
     }
 
     @Override

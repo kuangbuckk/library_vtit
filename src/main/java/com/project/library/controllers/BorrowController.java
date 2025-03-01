@@ -78,4 +78,14 @@ public class BorrowController {
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BORROW_SUCCESSFULLY),
                 code));
     }
+
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    public ResponseEntity<GenericResponse> destroyBorrow(@PathVariable String code) {
+        borrowService.destroyBorrow(UUID.fromString(code));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_BORROW_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BORROW_SUCCESSFULLY),
+                code));
+    }
 }

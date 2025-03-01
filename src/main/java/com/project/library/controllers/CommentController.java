@@ -69,4 +69,14 @@ public class CommentController {
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_COMMENT_SUCCESSFULLY),
                 code));
     }
+
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    public ResponseEntity<?> destroyComment(@PathVariable("code") UUID code) {
+        commentService.destroyComment(code);
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_BOOK_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
+                code));
+    }
 }

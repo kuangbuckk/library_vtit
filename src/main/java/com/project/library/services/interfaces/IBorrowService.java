@@ -14,5 +14,6 @@ public interface IBorrowService {
     BorrowResponse getBorrowByCode(UUID code);
     BorrowResponse addBorrow(BorrowDTO borrowDTO);
     BorrowResponse updateBorrow(BorrowDTO borrowDTO, UUID code);
-    void deleteBorrow(UUID code);
+    BorrowResponse deleteBorrow(UUID code);
+    void destroyBorrow(UUID code);
 }

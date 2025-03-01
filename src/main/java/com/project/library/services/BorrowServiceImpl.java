@@ -3,7 +3,7 @@ package com.project.library.services;
 import com.project.library.dtos.BorrowDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Borrow;
-import com.project.library.entities.BorrowStatus;
+import com.project.library.constants.BorrowStatus;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.exceptions.DataOutOfBoundException;
@@ -110,8 +110,21 @@ public class BorrowServiceImpl implements IBorrowService {
     }
 
     @Override
-    public void deleteBorrow(UUID code) {
-        borrowRepository.deleteById(code);
+    public BorrowResponse deleteBorrow(UUID code) {
+        Borrow existingBorrow = borrowRepository
+                .findById(code)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, code));
+        existingBorrow.setIsDeleted(true);
+        borrowRepository.save(existingBorrow);
+        return BorrowResponse.fromBorrow(existingBorrow);
+    }
+
+    @Override
+    public void destroyBorrow(UUID code) {
+        Borrow existingBorrow = borrowRepository
+                .findById(code)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, code));
+        borrowRepository.delete(existingBorrow);
     }
 
     private boolean isAvailableToBorrow(int amount) {

@@ -15,7 +15,8 @@ public interface IUserService {
     UserResponse getUserByCode(UUID code);
     UserResponse createUser(UserDTO User);
     UserResponse updateUser(UserDTO User, UUID code);
-    void deleteUser(UUID code);
+    UserResponse deleteUser(UUID code);
+    void destroyUser(UUID code);
 
     //Actions
     String login(String username, String password);

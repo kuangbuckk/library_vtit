@@ -83,13 +83,13 @@ public class BookController {
                 code));
     }
 
-//    @DeleteMapping("/destroy/{code}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public ResponseEntity<?> destroyBook(@PathVariable String code) {
-//        bookService.destroyBook(UUID.fromString(code));
-//        return ResponseEntity.ok(GenericResponse.success(
-//                MessageKeys.DESTROY_BOOK_SUCCESSFULLY,
-//                localizationUtils.getLocalizedMessage(MessageKeys.DESTROY_BOOK_SUCCESSFULLY),
-//                code));
-//    }
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> destroyBook(@PathVariable String code) {
+        bookService.destroyBook(UUID.fromString(code));
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_BOOK_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
+                code));
+    }
 }

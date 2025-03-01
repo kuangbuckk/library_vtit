@@ -71,4 +71,14 @@ public class PostController {
         postService.deletePost(code);
         return ResponseEntity.ok().body(GenericResponse.success(code));
     }
+
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    public ResponseEntity<GenericResponse> destroyPost(@PathVariable("code") UUID code) {
+        postService.destroyPost(code);
+        return ResponseEntity.ok(GenericResponse.success(
+                MessageKeys.DELETE_POST_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_POST_SUCCESSFULLY),
+                code));
+    }
 }

@@ -16,5 +16,6 @@ public interface IBookService {
     BookResponse getBookByCode(UUID code);
     BookResponse addBook(BookDTO bookDTO);
     BookResponse updateBook(BookDTO bookDTO, UUID code);
-    void deleteBook(UUID code);
+    BookResponse deleteBook(UUID code);
+    void destroyBook(UUID code);
 }

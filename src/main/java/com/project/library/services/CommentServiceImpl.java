@@ -13,6 +13,7 @@ import com.project.library.services.interfaces.ICommentService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,7 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
+    @Transactional
     public CommentResponse addComment(CommentDTO commentDTO) {
         User existingUser = userRepository.findById(commentDTO.getUserCode())
                 .orElseThrow(()->
@@ -59,6 +61,7 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
+    @Transactional
     public CommentResponse updateComment(CommentDTO commentDTO, UUID code) {
         Comment existingComment = commentRepository.findById(code)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
@@ -67,7 +70,20 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public void deleteComment(UUID code) {
-        commentRepository.deleteById(code);
+    @Transactional
+    public CommentResponse deleteComment(UUID code) {
+        Comment existingComment = commentRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+        existingComment.setIsDeleted(true);
+        commentRepository.save(existingComment);
+        return CommentResponse.fromComment(existingComment);
+    }
+
+    @Override
+    @Transactional
+    public void destroyComment(UUID code) {
+        Comment existingComment = commentRepository.findById(code)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+        commentRepository.delete(existingComment);
     }
 }
