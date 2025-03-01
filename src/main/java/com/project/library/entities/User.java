@@ -26,13 +26,13 @@ public class User extends BaseEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID code;
 
-    @Column(name = "username", length = 30, nullable = false)
+    @Column(name = "username", length = 30, nullable = false, unique = true)
     private String username;
 
     @Column(name = "email", length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_number", length = 11)
+    @Column(name = "phone_number", length = 11, unique = true)
     private String phoneNumber;
 
     @Column(name = "full_name", length = 50, nullable = false)
