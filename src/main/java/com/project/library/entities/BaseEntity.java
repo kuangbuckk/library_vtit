@@ -31,15 +31,17 @@ public class BaseEntity {
     private User updatedBy;
 
     @Column(name = "is_active")
-    private String isActive;
+    private Boolean isActive;
 
     @Column(name = "is_deleted")
-    private String isDeleted;
+    private Boolean isDeleted;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        isDeleted = false;
+        isActive = true;
     }
 
     @PreUpdate
