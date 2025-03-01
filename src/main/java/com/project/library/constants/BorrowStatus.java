@@ -1,4 +1,4 @@
-package com.project.library.entities;
+package com.project.library.constants;
 
 public enum BorrowStatus {
     BORROWED,

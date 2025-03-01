@@ -1,10 +1,9 @@
 package com.project.library.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.time.LocalDateTime;
 
@@ -18,8 +17,24 @@ public class BaseEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    @CreatedBy
+    private User createdBy;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    @LastModifiedBy
+    private User updatedBy;
+
+    @Column(name = "is_active")
+    private String isActive;
+
+    @Column(name = "is_deleted")
+    private String isDeleted;
 
     @PrePersist
     protected void onCreate() {

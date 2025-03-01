@@ -1,7 +1,9 @@
 package com.project.library.entities;
 
+import com.project.library.constants.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Borrow extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
