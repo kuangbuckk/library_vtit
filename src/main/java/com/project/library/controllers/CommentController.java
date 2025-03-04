@@ -38,7 +38,7 @@ public class CommentController {
         return ResponseEntity.ok(GenericResponse.success(commentResponse));
     }
 
-    @PostMapping("/")
+    @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO) {
         return ResponseEntity.ok(GenericResponse.success(
@@ -47,7 +47,7 @@ public class CommentController {
                 commentService.addComment(commentDTO)));
     }
 
-    @PutMapping("/{code}")
+    @PutMapping("/update/{code}")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
     public ResponseEntity<?> updateComment(
             @PathVariable("code") UUID code,

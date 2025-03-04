@@ -7,6 +7,7 @@ import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
 import com.project.library.services.interfaces.IPostService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ public class PostController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse> getAllPosts(
             @RequestParam("page_number") int pageNumber,
             @RequestParam("size") int size,
@@ -37,15 +39,17 @@ public class PostController {
     }
 
     @GetMapping("/{code}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse> getPostByCode(@PathVariable("code") UUID code) {
         PostResponse postResponse = postService.getPostByCode(code);
         return ResponseEntity.ok(GenericResponse.success(postResponse));
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    @PostMapping("/create")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> addPost(
-            @RequestBody @Valid PostDTO postDTO
+            @RequestBody @Valid PostDTO postDTO,
+            HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.INSERT_POST_SUCCESSFULLY,
@@ -53,11 +57,13 @@ public class PostController {
                 postService.addPost(postDTO)));
     }
 
-    @PutMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    @PutMapping("/update/{code}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
+            "AND @customSecurityExpression.isPostOwner(#code)")
     public ResponseEntity<GenericResponse> updatePost(
             @RequestBody @Valid PostDTO postDTO,
-            @PathVariable("code") UUID code
+            @PathVariable("code") UUID code,
+            HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_POST_SUCCESSFULLY,
@@ -66,14 +72,16 @@ public class PostController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
-    public ResponseEntity<GenericResponse> deletePost(@PathVariable("code") UUID code) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
+            "AND @customSecurityExpression.isPostOwner(#code)")
+    public ResponseEntity<GenericResponse> deletePost(@PathVariable("code") UUID code, HttpServletRequest httpServletRequest) {
         postService.deletePost(code);
         return ResponseEntity.ok().body(GenericResponse.success(code));
     }
 
     @DeleteMapping("/destroy/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
+            "AND @customSecurityExpression.isPostOwner(#code)")
     public ResponseEntity<GenericResponse> destroyPost(@PathVariable("code") UUID code) {
         postService.destroyPost(code);
         return ResponseEntity.ok(GenericResponse.success(

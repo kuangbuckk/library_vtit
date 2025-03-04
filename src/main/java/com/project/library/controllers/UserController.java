@@ -9,6 +9,7 @@ import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,19 +30,23 @@ public class UserController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> getAllUsers(
             @RequestParam("page_number") int pageNumber,
             @RequestParam("size") int size,
-            @RequestParam("keyword") String keyword
+            @RequestParam("keyword") String keyword,
+            HttpServletRequest httpServletRequest
     ) {
         UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, keyword);
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
     }
     
     @GetMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
-    public ResponseEntity<GenericResponse> getUserByCode(@PathVariable UUID code) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> getUserByCode(
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
+    ) {
         UserResponse userResponse = userService.getUserByCode(code);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
@@ -64,11 +69,12 @@ public class UserController {
                 token));
     }
 
-    @PutMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    @PutMapping("/update/{code}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateUser(
             @RequestBody @Valid UserDTO userDTO,
-            @PathVariable UUID code
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
     ) {
 
         UserResponse userResponse = userService.updateUser(userDTO, code);
@@ -76,15 +82,21 @@ public class UserController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
-    public ResponseEntity<GenericResponse> deleteUser(@PathVariable UUID code) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> deleteUser(
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
+    ) {
         userService.deleteUser(code);
         return ResponseEntity.ok(GenericResponse.success(code));
     }
 
     @DeleteMapping("/destroy/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
-    public ResponseEntity<GenericResponse> destroyUser(@PathVariable UUID code) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> destroyUser(
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
+    ) {
         userService.destroyUser(code);
         return ResponseEntity.ok(GenericResponse.success(code));
     }

@@ -1,6 +1,8 @@
 package com.project.library.configurations;
 
+import com.project.library.entities.Function;
 import com.project.library.repositories.RoleGroupRepository;
+import com.project.library.utils.UrlFormatUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -26,16 +28,21 @@ public class RoleConfig {
 
         for (String key : properties.stringPropertyNames()) {
             roles.put(key, properties.getProperty(key));
-            System.out.println(key + " = " + properties.getProperty(key));
+//            System.out.println(key + " = " + properties.getProperty(key));
         }
     }
 
     public String getFunctionByUri(String uri) {
-        return roles.getOrDefault(uri, "");
+        String formattedUri = UrlFormatUtil.formatUrl(uri);
+        return roles.getOrDefault(formattedUri, "");
     }
 
     public boolean roleGroupHasFunction(String roleGroupName, String functionName) {
-        List<String> functions = roleGroupRepository.findFunctionsByRoleGroupName(roleGroupName);
+        List<String> functions = roleGroupRepository
+                .findFunctionsByRoleGroupName(roleGroupName.replace("ROLE_", ""))
+                .stream()
+                .map(Function::getFunctionName)
+                .toList();
         return functions.contains(functionName);
     }
 }

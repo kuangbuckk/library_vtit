@@ -7,6 +7,7 @@ import com.project.library.responses.GenericResponse;
 import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.interfaces.IRoleGroupService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,10 +38,12 @@ public class RoleGroupController {
         return ResponseEntity.ok(GenericResponse.success(existingRoleGroup));
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/create")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> addNewRoleGroup(
-            @RequestBody @Valid RoleGroupDTO roleGroupDTO
+            @RequestBody @Valid RoleGroupDTO roleGroupDTO,
+            HttpServletRequest httpServletRequest
     ) {
         RoleGroupResponse newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
@@ -49,11 +52,13 @@ public class RoleGroupController {
                 newRoleGroup));
     }
 
-    @PutMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/update/{code}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
-            @PathVariable UUID code
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
     ) {
         RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
         return ResponseEntity.ok(GenericResponse.success(
@@ -63,7 +68,7 @@ public class RoleGroupController {
         );
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/destroy/{code}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRoleGroup(
             @PathVariable UUID code

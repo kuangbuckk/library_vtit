@@ -8,6 +8,7 @@ import com.project.library.responses.BookResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IBookService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public class BookController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse<BookPageResponse>> getBooks(
             @RequestParam(defaultValue = "0", name = "page_number") int pageNumber,
             @RequestParam(defaultValue = "5", name = "size") int size,
@@ -41,16 +43,19 @@ public class BookController {
     }
 
     @GetMapping("/{code}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse<BookResponse>> getBookByCode(@PathVariable String code) {
         BookResponse bookResponse = bookService.getBookByCode(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(bookResponse));
 
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PostMapping("/create")
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> createBook(
-            @RequestBody @Valid BookDTO bookDTO
+            @RequestBody @Valid BookDTO bookDTO,
+            HttpServletRequest httpServletRequest
     ) {
         BookResponse newBookResponse = bookService.addBook(bookDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -60,11 +65,13 @@ public class BookController {
                         newBookResponse));
     }
 
-    @PutMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PutMapping("/update/{code}")
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateBook(
             @RequestBody @Valid BookDTO bookDTO,
-            @PathVariable String code
+            @PathVariable String code,
+            HttpServletRequest httpServletRequest
     ) {
         BookResponse updatedBook = bookService.updateBook(bookDTO, UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
@@ -74,8 +81,9 @@ public class BookController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
-    public ResponseEntity<?> deleteBook(@PathVariable String code) {
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<?> deleteBook(@PathVariable String code, HttpServletRequest httpServletRequest) {
         bookService.deleteBook(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_BOOK_SUCCESSFULLY,
@@ -84,8 +92,9 @@ public class BookController {
     }
 
     @DeleteMapping("/destroy/{code}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> destroyBook(@PathVariable String code) {
+//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<?> destroyBook(@PathVariable String code, HttpServletRequest httpServletRequest) {
         bookService.destroyBook(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_BOOK_SUCCESSFULLY,

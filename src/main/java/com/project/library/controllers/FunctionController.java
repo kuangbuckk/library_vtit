@@ -7,10 +7,13 @@ import com.project.library.responses.FunctionResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IFunctionService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +39,12 @@ public class FunctionController {
         return ResponseEntity.ok(GenericResponse.success(existingFunction));
     }
 
-    @PostMapping("/")
+    @PostMapping("/create")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> addNewFunction(
-            @RequestBody @Valid FunctionDTO functionDTO
+            @RequestBody @Valid FunctionDTO functionDTO,
+            @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         FunctionResponse newFunction = functionService.addFunction(functionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
@@ -47,10 +53,12 @@ public class FunctionController {
                 newFunction));
     }
 
-    @PutMapping("/{code}")
+    @PutMapping("/update/{code}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateFunction(
             @RequestBody @Valid FunctionDTO functionDTO,
-            @PathVariable UUID code
+            @PathVariable UUID code,
+            @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         FunctionResponse existingFunction = functionService.getFunctionByCode(code);
         return ResponseEntity.ok(GenericResponse.success(
@@ -59,8 +67,12 @@ public class FunctionController {
                 existingFunction));
     }
 
-    @DeleteMapping("/{code}")
-    public ResponseEntity<?> deleteFunction(@PathVariable UUID code) {
+    @DeleteMapping("/destroy/{code}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<?> deleteFunction(
+            @PathVariable UUID code,
+            @P("httpServletRequest") HttpServletRequest httpServletRequest
+    ) {
         functionService.deleteFunction(code);
         return ResponseEntity.ok("Deleted function");
     }

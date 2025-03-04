@@ -8,6 +8,7 @@ import com.project.library.responses.BorrowResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.IBorrowService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,26 +30,33 @@ public class BorrowController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> getBorrows(
             @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size
+            @RequestParam("size") int size,
+            HttpServletRequest httpServletRequest
     ) {
         BorrowPageResponse borrowPageResponse = borrowService.getAllBorrows(PageRequest.of(pageNumber, size));
         return ResponseEntity.ok(GenericResponse.success(borrowPageResponse));
     }
 
     @GetMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
-    public ResponseEntity<GenericResponse> getBorrow(@PathVariable String code) {
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> getBorrow(
+            @PathVariable String code,
+            HttpServletRequest httpServletRequest
+    ) {
         BorrowResponse borrowResponse = borrowService.getBorrowByCode(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(borrowResponse));
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    @PostMapping("/create")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> addBorrow(
-            @RequestBody @Valid BorrowDTO borrowDTO
+            @RequestBody @Valid BorrowDTO borrowDTO,
+            HttpServletRequest httpServletRequest
     ) {
         BorrowResponse borrowResponse = borrowService.addBorrow(borrowDTO);
         return ResponseEntity.ok(GenericResponse.success(
@@ -57,11 +65,14 @@ public class BorrowController {
                 borrowResponse));
     }
 
-    @PutMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PutMapping("/update/{code}")
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateBorrow(
             @RequestBody @Valid BorrowDTO borrowDTO,
-            @PathVariable UUID code) {
+            @PathVariable UUID code,
+            HttpServletRequest httpServletRequest
+    ) {
         BorrowResponse updateBorrowResponse = borrowService.updateBorrow(borrowDTO, code);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_BORROW_SUCCESSFULLY,
@@ -70,8 +81,12 @@ public class BorrowController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
-    public ResponseEntity<GenericResponse> deleteBorrow(@PathVariable String code) {
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> deleteBorrow(
+            @PathVariable String code,
+            HttpServletRequest httpServletRequest
+    ) {
         borrowService.deleteBorrow(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_BORROW_SUCCESSFULLY,
@@ -80,8 +95,12 @@ public class BorrowController {
     }
 
     @DeleteMapping("/destroy/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
-    public ResponseEntity<GenericResponse> destroyBorrow(@PathVariable String code) {
+//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<GenericResponse> destroyBorrow(
+            @PathVariable String code,
+            HttpServletRequest httpServletRequest
+    ) {
         borrowService.destroyBorrow(UUID.fromString(code));
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_BORROW_SUCCESSFULLY,
