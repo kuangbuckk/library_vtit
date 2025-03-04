@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,11 +45,13 @@ public class UserResponse {
     private List<RoleGroupResponse> roleGroupResponses;
 
     public static UserResponse fromUser(final User user) {
-        List<RoleGroupResponse> roleGroupResponses = user.getRoleGroups()
-                .stream()
-                .map(RoleGroupResponse::fromRoleGroup)
-                .toList();
-
+        List<RoleGroupResponse> roleGroupResponses = new ArrayList<>();
+        if (user.getRoleGroups() != null) {
+            roleGroupResponses = user.getRoleGroups()
+                    .stream()
+                    .map(RoleGroupResponse::fromRoleGroup)
+                    .toList();
+        }
         return UserResponse.builder()
                 .code(user.getCode())
                 .username(user.getUsername())

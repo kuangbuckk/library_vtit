@@ -6,6 +6,7 @@ import com.project.library.entities.RoleGroup;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,11 +28,13 @@ public class FunctionResponse {
     private List<String> roleGroupNames;
 
     public static FunctionResponse fromFunction(Function function) {
-        List<String> roleGroupName = function.getRoleGroups()
-                .stream()
-                .map(RoleGroup::getRoleGroupName)
-                .toList();
-
+        List<String> roleGroupName = new ArrayList<>();
+        if (function.getRoleGroups() != null) {
+            roleGroupName = function.getRoleGroups()
+                    .stream()
+                    .map(RoleGroup::getRoleGroupName)
+                    .toList();
+        }
         return FunctionResponse.builder()
                 .code(function.getCode())
                 .functionName(function.getFunctionName())

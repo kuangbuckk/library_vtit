@@ -22,10 +22,13 @@ public class CategoryResponse {
     private List<BookResponse> bookResponses;
 
     public static CategoryResponse fromCategory(final Category category) {
-        List<BookResponse> bookResponses = category.getBooks()
-                .stream()
-                .map(book -> BookResponse.fromBook(book))
-                .toList();
+        List<BookResponse> bookResponses = new ArrayList<>();
+        if (category.getBooks() != null) {
+            bookResponses = category.getBooks()
+                    .stream()
+                    .map(BookResponse::fromBook)
+                    .toList();
+        }
         return CategoryResponse.builder()
                 .code(category.getCode())
                 .categoryName(category.getCategoryName())

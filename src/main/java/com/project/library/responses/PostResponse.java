@@ -36,11 +36,17 @@ public class PostResponse {
     @JsonProperty(value = "comments")
     private List<CommentResponse> comments;
 
+    @JsonProperty(value = "auditor")
+    private AuditorResponse auditor;
+
     public static PostResponse fromPost(Post post) {
-        List<CommentResponse> comments = post.getComments()
-                .stream()
-                .map(comment -> CommentResponse.fromComment(comment))
-                .toList();
+        List<CommentResponse> comments = new ArrayList<>();
+        if (post.getComments() != null) {
+            comments = post.getComments()
+                    .stream()
+                    .map(CommentResponse::fromComment)
+                    .toList();
+        }
         return PostResponse.builder()
                 .code(post.getCode())
                 .title(post.getTitle())
@@ -50,6 +56,15 @@ public class PostResponse {
                 .userCode(post.getUser().getCode())
                 .userName(post.getUser().getUsername())
                 .comments(comments)
+                .auditor(AuditorResponse.builder()
+                        .createdAt(post.getCreatedAt())
+                        .updatedAt(post.getUpdatedAt())
+                        .createdBy(post.getCreatedBy().getUsername())
+                        .updatedBy(post.getUpdatedBy().getUsername())
+                        .isActive(post.getIsActive())
+                        .isDeleted(post.getIsDeleted())
+                        .build()
+                )
                 .build();
     }
 }
