@@ -2,9 +2,9 @@ spring:
   application:
     name: library
   datasource:
-    url: jdbc:postgresql://localhost:5433/library
-    username: postgres
-    password: phandinhphung30
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
   jpa:
     show-sql: true
     hibernate:
@@ -19,12 +19,15 @@ spring:
     allow-bean-definition-overriding: true
 server:
   servlet:
-    context-path: /library-service
+    context-path: ${CONTEXT_PATH}
 api:
-  prefix: api/v1
+  prefix: ${API_PREFIX}
 jwt:
-  expiration: 2592000 #30 days = 30 * 24 * 60 * 60
-  secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
+  expiration: ${JWT_EXPIRATION}
+  secretKey: ${JWT_SECRET_KEY}
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 #spring doc configurations
 springdoc:
