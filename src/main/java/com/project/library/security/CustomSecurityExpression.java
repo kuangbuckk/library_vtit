@@ -2,6 +2,7 @@ package com.project.library.security;
 import com.project.library.configurations.RoleConfig;
 import com.project.library.entities.User;
 import com.project.library.responses.PostResponse;
+import com.project.library.services.interfaces.ICommentService;
 import com.project.library.services.interfaces.IPostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class CustomSecurityExpression {
     private final RoleConfig roleConfig;
     private final IPostService postService;
+    private final ICommentService commentService;
 
     public boolean fileRole(HttpServletRequest request) {
         System.out.println("Evaluating fileRole for: " + request.getRequestURI());
@@ -43,6 +45,21 @@ public class CustomSecurityExpression {
             return true;
         }
         return existingPost.getAuditor().getCreatedBy()
+                .equals(((User) authentication.getPrincipal()).getUsername());
+    }
+
+    public boolean isCommentOwner(UUID commentCode) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        }
+        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority ->
+                grantedAuthority.getAuthority().equals("ROLE_ADMIN") ||
+                        grantedAuthority.getAuthority().equals("ROLE_MANAGER"))
+        ) {
+            return true;
+        }
+        return commentService.getCommentByCode(commentCode).getAuditor().getCreatedBy()
                 .equals(((User) authentication.getPrincipal()).getUsername());
     }
 

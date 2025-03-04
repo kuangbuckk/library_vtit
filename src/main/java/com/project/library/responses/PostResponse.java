@@ -27,12 +27,6 @@ public class PostResponse {
     @JsonProperty(value = "book_title")
     private String bookTitle;
 
-    @JsonProperty(value = "user_code")
-    private UUID userCode;
-
-    @JsonProperty(value = "user_name")
-    private String userName;
-
     @JsonProperty(value = "comments")
     private List<CommentResponse> comments;
 
@@ -53,8 +47,6 @@ public class PostResponse {
                 .content(post.getContent())
                 .bookCode(post.getBook().getCode())
                 .bookTitle(post.getBook().getTitle())
-                .userCode(post.getUser().getCode())
-                .userName(post.getUser().getUsername())
                 .comments(comments)
                 .auditor(AuditorResponse.builder()
                         .createdAt(post.getCreatedAt())

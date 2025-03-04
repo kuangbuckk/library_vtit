@@ -18,22 +18,23 @@ public class CommentResponse {
     @JsonProperty(value = "content")
     private String content;
 
-    @JsonProperty(value = "user_code")
-    private UUID userCode;
-
-    @JsonProperty(value = "user_name")
-    private String userName;
-
     @JsonProperty(value = "post_code")
     private UUID postCode;
+
+    @JsonProperty(value = "auditor")
+    private AuditorResponse auditor;
 
     public static CommentResponse fromComment(Comment comment) {
         return CommentResponse.builder()
                 .code(comment.getCode())
                 .content(comment.getContent())
-                .userCode(comment.getUser().getCode())
-                .userName(comment.getUser().getUsername())
                 .postCode(comment.getPost().getCode())
+                .auditor(AuditorResponse.builder()
+                        .createdBy(comment.getCreatedBy().getUsername())
+                        .updatedBy(comment.getUpdatedBy().getUsername())
+                        .createdAt(comment.getCreatedAt())
+                        .updatedAt(comment.getUpdatedAt())
+                        .build())
                 .build();
     }
 }

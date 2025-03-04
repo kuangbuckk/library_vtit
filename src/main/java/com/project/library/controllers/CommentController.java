@@ -7,6 +7,7 @@ import com.project.library.responses.CommentResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.interfaces.ICommentService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
@@ -28,6 +29,7 @@ public class CommentController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> getAllComments() {
         return ResponseEntity.ok(GenericResponse.success(commentService.getAllComment()));
     }
@@ -39,8 +41,8 @@ public class CommentController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
-    public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#request)")
+    public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO, HttpServletRequest request) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.INSERT_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_COMMENT_SUCCESSFULLY),
@@ -48,10 +50,11 @@ public class CommentController {
     }
 
     @PutMapping("/update/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#code)")
     public ResponseEntity<?> updateComment(
             @PathVariable("code") UUID code,
-            @RequestBody @Valid CommentDTO commentDTO
+            @RequestBody @Valid CommentDTO commentDTO,
+            HttpServletRequest request
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
@@ -61,8 +64,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/{code}")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN') OR hasRole('USER')")
-    public ResponseEntity<?> deleteComment(@PathVariable("code") UUID code) {
+    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#code)")
+    public ResponseEntity<?> deleteComment(@PathVariable("code") UUID code, HttpServletRequest request) {
         commentService.deleteComment(code);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_COMMENT_SUCCESSFULLY,
