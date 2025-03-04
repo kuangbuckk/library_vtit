@@ -35,7 +35,9 @@ public class WebSecurityConfig {
     private final String[] bypassRequests = {
             "/api/v1/users/register",
             "/api/v1/users/login",
-
+            "/api/v1/posts",
+            "/api/v1/comments",
+            "/api/v1/books",
             //Swagger
             "/api-docs/**",
             "/swagger-ui/**",
@@ -54,8 +56,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests( request ->
                         request
 //                                //category
-//                                .requestMatchers(GET,
-//                                        String.format("%s/categories/**", apiPrefix)).permitAll()
+                                .requestMatchers(GET,
+                                        String.format("%s/categories/**", apiPrefix)).permitAll()
 //                                .requestMatchers(POST,
 //                                        String.format("%s/categories/**", apiPrefix))
 //                                .hasAnyRole(RoleGroup.ADMIN, RoleGroup.MANAGER)
@@ -67,8 +69,8 @@ public class WebSecurityConfig {
 //                                .hasAnyRole(RoleGroup.ADMIN, RoleGroup.MANAGER)
 //
 //                                //books
-//                                .requestMatchers(GET,
-//                                        String.format("%s/books/**", apiPrefix)).permitAll()
+                                .requestMatchers(GET,
+                                        String.format("%s/books/**", apiPrefix)).permitAll()
 //                                .requestMatchers(POST,
 //                                        String.format("%s/books/**", apiPrefix))
 //                                .hasAnyRole(RoleGroup.ADMIN, RoleGroup.MANAGER, RoleGroup.LIBRARIAN)
@@ -80,8 +82,8 @@ public class WebSecurityConfig {
 //                                .hasAnyRole(RoleGroup.ADMIN, RoleGroup.MANAGER)
 //
 //                                //posts
-//                                .requestMatchers(GET,
-//                                        String.format("%s/books/**", apiPrefix)).permitAll()
+                                .requestMatchers(GET,
+                                        String.format("%s/posts/**", apiPrefix)).permitAll()
 //                                .requestMatchers(POST,
 //                                        String.format("%s/books/**", apiPrefix))
 //                                .hasAnyRole(RoleGroup.ADMIN,
@@ -105,8 +107,8 @@ public class WebSecurityConfig {
 //                                )
 //
 //                                //comments
-//                                .requestMatchers(GET,
-//                                        String.format("%s/comments/**", apiPrefix)).permitAll()
+                                .requestMatchers(GET,
+                                        String.format("%s/comments/**", apiPrefix)).permitAll()
 //                                .requestMatchers(POST,
 //                                        String.format("%s/comments/**", apiPrefix))
 //                                .hasAnyRole(RoleGroup.ADMIN,
@@ -158,8 +160,8 @@ public class WebSecurityConfig {
 //                                )
 //
 //                                //RoleGroups
-//                                .requestMatchers(GET,
-//                                        String.format("%s/role_groups/**", apiPrefix)).permitAll()
+                                .requestMatchers(GET,
+                                        String.format("%s/role_groups/**", apiPrefix)).permitAll()
 //                                .requestMatchers(POST,
 //                                        String.format("%s/role_groups/**", apiPrefix)).hasRole(RoleGroup.ADMIN)
 //                                .requestMatchers(PUT,
@@ -168,10 +170,10 @@ public class WebSecurityConfig {
 //                                        String.format("%s/role_groups/**", apiPrefix)).hasRole(RoleGroup.ADMIN)
 //
 //                                //Users
-//                                .requestMatchers(POST,
-//                                        String.format("%s/users/register", apiPrefix)).permitAll()
-//                                .requestMatchers(POST,
-//                                        String.format("%s/users/login", apiPrefix)).permitAll()
+                                .requestMatchers(POST,
+                                        String.format("%s/users/register", apiPrefix)).permitAll()
+                                .requestMatchers(POST,
+                                        String.format("%s/users/login", apiPrefix)).permitAll()
 //                                .requestMatchers(GET,
 //                                        String.format("%s/users/**", apiPrefix))
 //                                .hasAnyRole(RoleGroup.ADMIN,

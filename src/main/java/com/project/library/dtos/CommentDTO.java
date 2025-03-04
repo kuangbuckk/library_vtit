@@ -2,6 +2,7 @@ package com.project.library.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,10 +22,10 @@ public class CommentDTO {
     private String content;
 
     @JsonProperty(value = "user_code")
-    @NotBlank(message = "Comment must belong to a user")
+    @NotNull(message = "Comment must belong to a user")
     private UUID userCode;
 
     @JsonProperty(value = "post_code")
-    @NotBlank(message = "Comment must belong to a post")
+    @NotNull(message = "Comment must belong to a post")
     private UUID postCode;
 }
