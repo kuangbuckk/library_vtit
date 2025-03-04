@@ -18,9 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @AllArgsConstructor
-public class SecurityConfig extends GlobalMethodSecurityConfiguration {
+public class SecurityConfig {
     private final UserRepository userRepository;
-    private final HttpServletRequest request;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
