@@ -8,11 +8,15 @@ import com.project.library.events.UserRegisterEvent;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.RoleGroupRepository;
 import com.project.library.repositories.UserRepository;
+import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -114,7 +118,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public String login(String username, String password) {
+    public LoginResponse login(String username, String password) {
         User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
@@ -123,6 +127,40 @@ public class UserServiceImpl implements IUserService {
         if (existingUser.getRoleGroups().isEmpty()) {
             throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
         }
-        return jwtTokenUtils.generateToken(existingUser);
+        existingUser.setIsActive(true);
+        userRepository.save(existingUser);
+        return LoginResponse.builder()
+                .token(jwtTokenUtils.generateAccessToken(existingUser))
+                .refreshToken(jwtTokenUtils.generateRefreshToken(existingUser))
+                .username(existingUser.getUsername())
+                .roles(existingUser.getRoleGroups().stream().map(RoleGroup::getRoleGroupName).toList())
+                .build();
+    }
+
+    @Override
+    public String refreshToken(String refreshToken) {
+        String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
+        User existingUser = userRepository.findByUsername(username)
+                .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));
+        if (jwtTokenUtils.validateToken(refreshToken, existingUser)) {
+            return jwtTokenUtils.generateAccessToken(existingUser);
+        }
+        else {
+            throw new BadCredentialsException(MessageKeys.LOGIN_FAILED);
+        }
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
+        User existingUser = userRepository.findByUsername(username)
+                .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));
+        if (jwtTokenUtils.validateToken(refreshToken, existingUser)) {
+            existingUser.setIsActive(false);
+            userRepository.save(existingUser);
+        }
+        else {
+            throw new BadCredentialsException(MessageKeys.LOGIN_FAILED);
+        }
     }
 }

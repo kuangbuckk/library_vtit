@@ -1,18 +1,23 @@
 package com.project.library.controllers;
 
+import com.project.library.components.JwtTokenUtils;
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.User;
 import com.project.library.responses.GenericResponse;
+import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.interfaces.IUserService;
 import com.project.library.utils.MessageKeys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -32,9 +37,9 @@ public class UserController {
     @GetMapping("/")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> getAllUsers(
-            @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size,
-            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page_number", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
             HttpServletRequest httpServletRequest
     ) {
         UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, keyword);
@@ -60,13 +65,49 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<GenericResponse> loginUser(
-            @RequestBody @Valid LoginDTO loginDTO
+            @RequestBody @Valid LoginDTO loginDTO,
+            HttpServletResponse response
     ) {
-        String token = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
+        LoginResponse loginResponse = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
+        String refreshToken = loginResponse.getRefreshToken();
+//        Cookie cookie = new Cookie("x-auth-refresh-token", refreshToken);
+//        cookie.setHttpOnly(true);
+////        cookie.setPath("/");
+////        cookie.setMaxAge(60 * 60 * 24 * 30);
+//        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("x-auth-refresh-token", refreshToken)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(60 * 60 * 24 * 7)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.LOGIN_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY),
-                token));
+                loginResponse.getToken()));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<GenericResponse> refreshToken(
+            @CookieValue(name = "x-auth-refresh-token") String refreshToken
+    ) {
+        String accessToken = userService.refreshToken(refreshToken);
+        return ResponseEntity.ok(GenericResponse.success(accessToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<GenericResponse> logout(
+            @CookieValue(name = "x-auth-refresh-token") String refreshToken,
+            HttpServletResponse response
+    ) {
+        userService.logout(refreshToken);
+        ResponseCookie responseCookie = ResponseCookie.from("x-auth-refresh-token", null)
+                .httpOnly(true)
+                .maxAge(0)
+                .path("/")
+                .build();
+        response.setHeader("Set-Cookie", responseCookie.toString());
+        return ResponseEntity.ok(GenericResponse.success("Logout successfully"));
     }
 
     @PutMapping("/update/{code}")

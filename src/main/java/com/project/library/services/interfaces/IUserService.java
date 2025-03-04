@@ -2,8 +2,10 @@ package com.project.library.services.interfaces;
 
 import com.project.library.dtos.UserDTO;
 import com.project.library.entities.User;
+import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -19,5 +21,7 @@ public interface IUserService {
     void destroyUser(UUID code);
 
     //Actions
-    String login(String username, String password);
+    LoginResponse login(String username, String password);
+    String refreshToken(String token);
+    void logout(String token);
 }

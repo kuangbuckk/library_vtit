@@ -25,7 +25,24 @@ public class JwtTokenUtils {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(User user) throws InvalidParameterException {
+    public String generateAccessToken(User user) throws InvalidParameterException {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", user.getUsername());
+        claims.put("userCode", user.getCode());
+        try {
+            String token = Jwts.builder()
+                    .setClaims(claims)
+                    .setSubject(user.getUsername())
+                    .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                    .signWith(getSecretKey(), SignatureAlgorithm.HS256)
+                    .compact();
+            return token;
+        } catch (Exception e) {
+            throw new InvalidParameterException(e.getMessage());
+        }
+    }
+
+    public String generateRefreshToken(User user) throws InvalidParameterException {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
         claims.put("userCode", user.getCode());
