@@ -134,7 +134,8 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(existingUser);
 
         String accessToken = jwtTokenUtils.generateAccessToken(existingUser);
-        String refreshToken = tokenService.generateRefreshToken(existingUser);
+        String refreshToken = tokenService.generateRefreshTokenAfterLogin(existingUser);
+
         return LoginResponse.builder()
                 .token(accessToken)
                 .refreshToken(refreshToken)
@@ -144,12 +145,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public String refreshToken(String refreshToken) {
+    public String refreshToken(String refreshToken) throws Exception {
         String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
         User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));
         if (jwtTokenUtils.validateToken(refreshToken, existingUser) && tokenService.isTokenExist(refreshToken)) {
-            return jwtTokenUtils.generateAccessToken(existingUser);
+            return tokenService.refreshToken(refreshToken, existingUser);
         }
         else {
             throw new BadCredentialsException(MessageKeys.LOGIN_FAILED);

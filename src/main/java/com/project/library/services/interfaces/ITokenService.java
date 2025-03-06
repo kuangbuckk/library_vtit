@@ -5,7 +5,8 @@ import com.project.library.entities.User;
 
 public interface ITokenService {
     Token addToken(User user, String token, boolean isMobileDevice);
-    String generateRefreshToken(User existingUser);
+    String generateRefreshTokenAfterLogin(User existingUser);
+    String refreshToken(String refreshToken, User existingUser) throws Exception;
     void invalidateRefreshToken(String refreshToken);
     boolean isTokenExist(String refreshToken);
 }

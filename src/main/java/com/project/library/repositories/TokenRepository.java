@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
-    Optional<Token> findFirstByUserOrderByIssuedAtDesc(User existingUser);
-    Optional<Token> findFirstByUserOrderByIssuedAtAsc(User existingUser);
-    int countByUser(User existingUser);
+    Optional<Token> findByUser(User existingUser);
+    Optional<Token> findByRefreshToken(String refreshToken);
     void deleteByRefreshToken(String refreshToken);
+    Token findFirstByUserOrderByIssuedAt(User existingUser);
     boolean existsTokenByRefreshToken(String refreshToken);
+    int countByUser(User existingUser);
 }

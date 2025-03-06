@@ -26,7 +26,11 @@ import java.util.UUID;
 public class TokenServiceImpl implements ITokenService {
 
     @Value("${jwt.expiration}")
-    private Long expiration;
+    private Long accessTokenExpiration;
+
+    @Value("${jwt.refresh_expiration}")
+    private Long refreshTokenExpiration;
+
     private final TokenRepository tokenRepository;
     private final JwtTokenUtils jwtTokenUtils;
 
@@ -37,40 +41,69 @@ public class TokenServiceImpl implements ITokenService {
     }
 
     @Override
-    public String generateRefreshToken(User existingUser) {
-        Optional<Token> latestTokenOptional = tokenRepository.findFirstByUserOrderByIssuedAtDesc(existingUser);
-        Date expirationDateTime;
-        if (latestTokenOptional.isPresent()) {
-            Token latestToken = latestTokenOptional.get();
-            expirationDateTime = jwtTokenUtils.getExpirationDateFromToken(latestToken.getRefreshToken());
-        } else {
-            expirationDateTime = new Date(System.currentTimeMillis() + expiration * 1000L);
+    public String generateRefreshTokenAfterLogin(User existingUser) {
+        Optional<Token> tokenOptional = tokenRepository.findByUser(existingUser);
+        if (tokenOptional.isPresent()) {
+            tokenRepository.delete(tokenOptional.get());
         }
-
-        String newRefreshToken = jwtTokenUtils.generateRefreshToken(existingUser, expirationDateTime);
+        String newRefreshToken = jwtTokenUtils.generateRefreshToken(existingUser, refreshTokenExpiration);
         Token newToken = Token.builder()
                 .refreshToken(newRefreshToken)
                 .tokenType("Bearer")
-                .expirationDate(expirationDateTime)
+                .expirationDate(jwtTokenUtils.getExpirationDateFromToken(newRefreshToken))
                 .issuedAt(LocalDateTime.now())
                 .expired(false)
                 .revoked(false)
                 .user(existingUser)
                 .build();
         tokenRepository.save(newToken);
-        if (tokenRepository.countByUser(existingUser) >= Token.MAX_TOKEN_AMOUNT) {
-            this.invalidateRefreshToken(tokenRepository
-                    .findFirstByUserOrderByIssuedAtAsc(existingUser)
-                    .get()
-                    .getRefreshToken()
-            );
-        }
         return newRefreshToken;
     }
 
     @Override
+    public String refreshToken(String refreshToken, User existingUser) throws Exception {
+        Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
+        if (tokenOptional.isEmpty()) {
+            throw new DataNotFoundException("Token not found for user with code ", existingUser.getCode());
+        }
+        Token existingToken = tokenOptional.get();
+        if (!jwtTokenUtils.validateToken(existingToken.getRefreshToken(), existingUser)) {
+            tokenRepository.delete(existingToken);
+            throw new Exception("Token is expired");
+        }
+//        else {
+//            existingToken.setExpirationDate(new Date(System.currentTimeMillis()));
+//            existingToken.setExpired(true);
+//            existingToken.setRevoked(true);
+//            tokenRepository.save(existingToken);
+//        }
+        String newRefreshToken = jwtTokenUtils.generateRefreshToken(existingUser, refreshTokenExpiration);
+
+        existingToken.setRefreshToken(newRefreshToken);
+        existingToken.setExpirationDate(jwtTokenUtils.getExpirationDateFromToken(newRefreshToken));
+        existingToken.setIssuedAt(LocalDateTime.now());
+//        Token newToken = Token.builder()
+//                .refreshToken(newRefreshToken)
+//                .tokenType("Bearer")
+//                .expirationDate(jwtTokenUtils.getExpirationDateFromToken(newRefreshToken))
+//                .issuedAt(LocalDateTime.now())
+//                .user(existingUser)
+//                .expired(false)
+//                .revoked(false)
+//                .build();
+//        tokenRepository.save(newToken);
+//        if (tokenRepository.countByUser(existingUser) > Token.MAX_TOKEN_AMOUNT) {
+//            Token firstTokenToDelete = tokenRepository.findFirstByUserOrderByIssuedAt(existingUser);
+//            tokenRepository.delete(firstTokenToDelete);
+//        }
+        String newAccessToken = jwtTokenUtils.generateAccessToken(existingUser);
+        return newAccessToken;
+    }
+
+    @Override
     public void invalidateRefreshToken(String refreshToken) {
-        tokenRepository.deleteByRefreshToken(refreshToken);
+        Optional<Token> existingToken = tokenRepository.findByRefreshToken(refreshToken);
+        tokenRepository.delete(existingToken.get());
     }
 
     @Override

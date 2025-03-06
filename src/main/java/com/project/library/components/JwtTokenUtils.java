@@ -42,7 +42,7 @@ public class JwtTokenUtils {
         }
     }
 
-    public String generateRefreshToken(User user, Date expirationDate) throws InvalidParameterException {
+    public String generateRefreshToken(User user, Long expirationTime) throws InvalidParameterException {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
         claims.put("userCode", user.getCode());
@@ -50,7 +50,7 @@ public class JwtTokenUtils {
             String token = Jwts.builder()
                     .setClaims(claims)
                     .setSubject(user.getUsername())
-                    .setExpiration(expirationDate)
+                    .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                     .signWith(getSecretKey(), SignatureAlgorithm.HS256)
                     .compact();
             return token;

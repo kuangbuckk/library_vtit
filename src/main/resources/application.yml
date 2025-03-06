@@ -24,6 +24,7 @@ api:
   prefix: ${API_PREFIX}
 jwt:
   expiration: ${JWT_EXPIRATION}
+  refresh_expiration: ${JWT_REFRESH_EXPIRATION}
   secretKey: ${JWT_SECRET_KEY}
 logging:
   level:
