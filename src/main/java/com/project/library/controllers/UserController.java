@@ -77,6 +77,7 @@ public class UserController {
 //        response.addCookie(cookie);
         ResponseCookie cookie = ResponseCookie.from("x-auth-refresh-token", refreshToken)
                 .httpOnly(true)
+                .secure(true)
                 .path("/")
                 .maxAge(60 * 60 * 24 * 7)
                 .build();
@@ -87,6 +88,18 @@ public class UserController {
                 loginResponse.getToken()));
     }
 
+    /**
+     * Hàm này thực hiện gửi yêu cầu refresh lại access token trả về cho client bằng refresh token.
+     * @param {String} refreshTokens - Refresh token được lấy từ client (ở đây sẽ là Cookie,
+     * có thể là Header hoặc localStorage).
+     * @returns {String} - Access Token.
+     *
+     * Ở phía Client:
+     * - Khi nhận được access token mới, client sẽ lưu lại access token mới và sử dụng nó để gọi API.
+     * - Nếu access token hết hạn, server sẽ trả về Unauthorized và Client sẽ có cơ chế redirect gửi
+     * yêu cầu tới /refresh token lên server để lấy access token mới rồi intercept vào API vừa gọi.
+     * - Nếu refresh token hết hạn, server sẽ trả về Unauthorized và Client sẽ bị yêu cầu đăng nhập lại.
+     */
     @PostMapping("/refresh-token")
     public ResponseEntity<GenericResponse> refreshToken(
             @CookieValue(name = "x-auth-refresh-token") String refreshToken
