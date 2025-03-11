@@ -6,6 +6,7 @@ import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.TokenRepository;
 import com.project.library.repositories.UserRepository;
+import com.project.library.responses.LoginResponse;
 import com.project.library.services.interfaces.ITokenService;
 import com.project.library.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,7 @@ public class TokenServiceImpl implements ITokenService {
     }
 
     @Override
-    public String refreshToken(String refreshToken, User existingUser) throws Exception {
+    public LoginResponse refreshToken(String refreshToken, User existingUser) throws Exception {
         Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
         if (tokenOptional.isEmpty()) {
             throw new DataNotFoundException("Token not found for user with code ", existingUser.getCode());
@@ -97,7 +98,10 @@ public class TokenServiceImpl implements ITokenService {
 //            tokenRepository.delete(firstTokenToDelete);
 //        }
         String newAccessToken = jwtTokenUtils.generateAccessToken(existingUser);
-        return newAccessToken;
+        return LoginResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(existingToken.getRefreshToken())
+                .build();
     }
 
     @Override

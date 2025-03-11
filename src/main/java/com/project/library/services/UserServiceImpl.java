@@ -2,6 +2,7 @@ package com.project.library.services;
 
 import com.project.library.components.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
+import com.project.library.dtos.UserSearchDTO;
 import com.project.library.entities.RoleGroup;
 import com.project.library.entities.User;
 import com.project.library.events.UserRegisterEvent;
@@ -42,9 +43,9 @@ public class UserServiceImpl implements IUserService {
     private final JwtTokenUtils jwtTokenUtils;
 
     @Override
-    public UserPageResponse getUsers(int pageNumber, int size, String keyword) {
+    public UserPageResponse getUsers(int pageNumber, int size, UserSearchDTO userSearchDTO) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        Page<User> users = userRepository.findAll(pageable, keyword);
+        Page<User> users = userRepository.findAll(pageable, userSearchDTO);
         int totalPages = users.getTotalPages();
         List<UserResponse> userResponses = users.getContent()
                 .stream()
@@ -145,7 +146,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public String refreshToken(String refreshToken) throws Exception {
+    public LoginResponse refreshToken(String refreshToken) throws Exception {
         String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
         User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(()-> new BadCredentialsException(MessageKeys.LOGIN_FAILED));

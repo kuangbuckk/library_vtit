@@ -1,6 +1,7 @@
 package com.project.library.services.interfaces;
 
 import com.project.library.dtos.UserDTO;
+import com.project.library.dtos.UserSearchDTO;
 import com.project.library.entities.User;
 import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
@@ -22,6 +23,6 @@ public interface IUserService {
 
     //Actions
     LoginResponse login(String username, String password);
-    String refreshToken(String token);
+    LoginResponse refreshToken(String token) throws Exception;
     void logout(String token);
 }
