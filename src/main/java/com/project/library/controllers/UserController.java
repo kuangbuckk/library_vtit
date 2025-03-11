@@ -103,7 +103,7 @@ public class UserController {
     @PostMapping("/refresh-token")
     public ResponseEntity<GenericResponse> refreshToken(
             @CookieValue(name = "x-auth-refresh-token") String refreshToken
-    ) {
+    ) throws Exception {
         String accessToken = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(GenericResponse.success(accessToken));
     }
