@@ -33,7 +33,6 @@ public class BookController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse<BookPageResponse>> getBooks(
             @RequestParam(defaultValue = "0", name = "page_number") int pageNumber,
             @RequestParam(defaultValue = "5", name = "size") int size,

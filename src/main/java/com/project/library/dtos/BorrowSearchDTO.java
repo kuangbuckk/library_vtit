@@ -1,6 +1,7 @@
 package com.project.library.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.library.constants.BorrowStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -23,7 +24,7 @@ public class BorrowSearchDTO {
     private UUID userCode;
 
     @JsonProperty(value = "book_code")
-    private String bookCode;
+    private UUID bookCode;
 
     @JsonProperty(value = "borrow_amount")
     private int borrowAmount;
@@ -35,5 +36,5 @@ public class BorrowSearchDTO {
     private LocalDateTime returnAt;
 
     @JsonProperty(value = "status")
-    private String status;
+    private BorrowStatus status;
 }

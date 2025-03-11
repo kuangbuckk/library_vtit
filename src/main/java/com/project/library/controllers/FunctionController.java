@@ -41,7 +41,6 @@ public class FunctionController {
 
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> addNewFunction(
             @RequestBody @Valid FunctionDTO functionDTO,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
