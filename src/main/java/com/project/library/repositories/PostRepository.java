@@ -13,10 +13,10 @@ import java.util.UUID;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
-    @Query("SELECT p FROM Post p WHERE " +
+    @Query("SELECT p FROM Post p JOIN FETCH p.book b JOIN FETCH p.comments c JOIN FETCH p.user u WHERE " +
             "p.title LIKE %:#{#postSearchDTO.title}% OR " +
             "p.content LIKE %:#{#postSearchDTO.content}% OR " +
-            "p.user.code = :#{#postSearchDTO.userCode} OR " +
-            "p.book.code = :#{#postSearchDTO.bookCode}")
+            "u.code = :#{#postSearchDTO.userCode} OR " +
+            "b.code = :#{#postSearchDTO.bookCode}")
     Page<Post> findAll(Pageable pageable, @Param("postSearchDTO") PostSearchDTO postSearchDTO);
 }

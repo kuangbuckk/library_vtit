@@ -27,7 +27,7 @@ public class RoleGroup {
     @Column(name = "description", length = 50)
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_groups_functions",
             joinColumns = @JoinColumn(name = "role_group_code"),

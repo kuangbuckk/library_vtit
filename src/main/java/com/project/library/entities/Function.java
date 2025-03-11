@@ -25,6 +25,6 @@ public class Function {
     @Column(name = "description", length = 120)
     private String description;
 
-    @ManyToMany(mappedBy = "functions", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "functions", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RoleGroup> roleGroups;
 }

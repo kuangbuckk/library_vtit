@@ -1,6 +1,7 @@
 package com.project.library.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.library.entities.Book;
 import com.project.library.entities.Post;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,12 +42,13 @@ public class PostResponse {
                     .map(CommentResponse::fromComment)
                     .toList();
         }
+        Book existingBook = post.getBook();
         return PostResponse.builder()
                 .code(post.getCode())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .bookCode(post.getBook().getCode())
-                .bookTitle(post.getBook().getTitle())
+                .bookCode(existingBook.getCode())
+                .bookTitle(existingBook.getTitle())
                 .comments(comments)
                 .auditor(AuditorResponse.builder()
                         .createdAt(post.getCreatedAt())

@@ -14,6 +14,6 @@ import java.util.UUID;
 @Repository
 public interface RoleGroupRepository extends JpaRepository<RoleGroup, UUID> {
 //    @EntityGraph(attributePaths = {"functions"})
-    @Query("SELECT rg.functions FROM RoleGroup rg WHERE rg.roleGroupName = :roleGroupName")
+    @Query("SELECT f FROM RoleGroup rg JOIN rg.functions f WHERE rg.roleGroupName = :roleGroupName")
     List<Function> findFunctionsByRoleGroupName(String roleGroupName);
 }
