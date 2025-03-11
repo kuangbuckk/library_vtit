@@ -1,6 +1,7 @@
 package com.project.library.services.interfaces;
 
 import com.project.library.dtos.BorrowDTO;
+import com.project.library.dtos.BorrowSearchDTO;
 import com.project.library.entities.Borrow;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IBorrowService {
-    BorrowPageResponse getAllBorrows(Pageable pageable);
+    BorrowPageResponse getAllBorrows(int pageNumber, int size, BorrowSearchDTO borrowSearchDTO);
     BorrowResponse getBorrowByCode(UUID code);
     BorrowResponse addBorrow(BorrowDTO borrowDTO);
     BorrowResponse updateBorrow(BorrowDTO borrowDTO, UUID code);

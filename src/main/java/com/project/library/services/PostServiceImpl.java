@@ -1,6 +1,7 @@
 package com.project.library.services;
 
 import com.project.library.dtos.PostDTO;
+import com.project.library.dtos.PostSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Post;
 import com.project.library.entities.User;
@@ -31,9 +32,9 @@ public class PostServiceImpl implements IPostService {
     private final UserRepository userRepository;
 
     @Override
-    public PostPageResponse getAllPosts(int pageNumber, int size, String keyword) {
+    public PostPageResponse getAllPosts(int pageNumber, int size, PostSearchDTO postSearchDTO) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        Page<Post> posts = postRepository.findAll(pageable, keyword);
+        Page<Post> posts = postRepository.findAll(pageable, postSearchDTO);
         int totalPages = posts.getTotalPages();
         List<PostResponse> postResponseList = posts.getContent()
                 .stream()

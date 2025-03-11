@@ -1,6 +1,7 @@
 package com.project.library.services;
 
 import com.project.library.dtos.BorrowDTO;
+import com.project.library.dtos.BorrowSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Borrow;
 import com.project.library.constants.BorrowStatus;
@@ -17,6 +18,7 @@ import com.project.library.utils.MessageKeys;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +36,8 @@ public class BorrowServiceImpl implements IBorrowService {
     private final BookRepository bookRepository;
 
     @Override
-    public BorrowPageResponse getAllBorrows(Pageable pageable) {
-        Page<Borrow> borrows = borrowRepository.findAll(pageable);
+    public BorrowPageResponse getAllBorrows(int pageNumber, int size, BorrowSearchDTO borrowSearchDTO) {
+        Page<Borrow> borrows = borrowRepository.findAll(PageRequest.of(pageNumber, size), borrowSearchDTO);
         int totalPages = borrows.getTotalPages();
         List<BorrowResponse> borrowResponseList = borrows.getContent()
                 .stream()

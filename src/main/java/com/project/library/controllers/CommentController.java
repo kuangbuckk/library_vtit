@@ -29,7 +29,7 @@ public class CommentController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request)")
     public ResponseEntity<?> getAllComments() {
         return ResponseEntity.ok(GenericResponse.success(commentService.getAllComment()));
     }

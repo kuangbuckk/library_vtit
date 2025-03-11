@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface IUserService {
     //CRUD
-    UserPageResponse getUsers(int pageNumber, int size, String keyword);
+    UserPageResponse getUsers(int pageNumber, int size, UserSearchDTO userSearchDTO);
     UserResponse getUserByCode(UUID code);
     UserResponse createUser(UserDTO User);
     UserResponse updateUser(UserDTO User, UUID code);

@@ -1,6 +1,7 @@
 package com.project.library.services.interfaces;
 
 import com.project.library.dtos.BookDTO;
+import com.project.library.dtos.BookSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.responses.BookPageResponse;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IBookService {
-    BookPageResponse getAllBooks(int pageNumber, int size, String keyword);
+    BookPageResponse getAllBooks(int pageNumber, int size, BookSearchDTO bookSearchDTO);
     BookResponse getBookByCode(UUID code);
     BookResponse addBook(BookDTO bookDTO);
     BookResponse updateBook(BookDTO bookDTO, UUID code);

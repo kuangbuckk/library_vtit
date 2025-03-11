@@ -1,6 +1,7 @@
 package com.project.library.services;
 
 import com.project.library.dtos.BookDTO;
+import com.project.library.dtos.BookSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Category;
 import com.project.library.exceptions.DataNotFoundException;
@@ -28,9 +29,9 @@ public class BookServiceImpl implements IBookService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public BookPageResponse getAllBooks(int pageNumber, int size, String keyword) {
+    public BookPageResponse getAllBooks(int pageNumber, int size, BookSearchDTO bookSearchDTO) {
         Pageable pageable = PageRequest.of(pageNumber, size); //Sort.by("code").ascending()
-        Page<Book> books = bookRepository.findAll(pageable, keyword);
+        Page<Book> books = bookRepository.findAll(pageable, bookSearchDTO);
         int totalPage = books.getTotalPages();
         List<BookResponse> bookResponses = books.getContent()
                 .stream()
@@ -47,7 +48,7 @@ public class BookServiceImpl implements IBookService {
     public BookResponse getBookByCode(UUID code) {
         Book book = bookRepository
                 .findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         return BookResponse.fromBook(book);
     }
 
@@ -80,7 +81,7 @@ public class BookServiceImpl implements IBookService {
         List<Category> categories = categoryRepository.findCategoriesByCodeIn(categoryCodes);
 
         Book existingBook = bookRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
 
         existingBook.setTitle(bookDTO.getTitle());
         existingBook.setAuthor(bookDTO.getAuthor());
@@ -94,7 +95,7 @@ public class BookServiceImpl implements IBookService {
     @Override
     public BookResponse deleteBook(UUID code) {
         Book book = bookRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         book.setIsDeleted(true);
         bookRepository.save(book);
         return BookResponse.fromBook(book);
@@ -104,7 +105,7 @@ public class BookServiceImpl implements IBookService {
     @Transactional
     public void destroyBook(UUID code) {
         Book book = bookRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
         bookRepository.delete(book);
     }
 }

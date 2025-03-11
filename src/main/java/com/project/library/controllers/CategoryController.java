@@ -46,7 +46,6 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> addCategory(
             @RequestBody @Valid CategoryDTO categoryDTO,

@@ -39,7 +39,6 @@ public class RoleGroupController {
     }
 
     @PostMapping("/create")
-//    @PreAuthorize("hasRole('ADMIN')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> addNewRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
@@ -53,7 +52,6 @@ public class RoleGroupController {
     }
 
     @PutMapping("/update/{code}")
-//    @PreAuthorize("hasRole('ADMIN')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,

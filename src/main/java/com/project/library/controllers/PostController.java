@@ -2,6 +2,7 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.PostDTO;
+import com.project.library.dtos.PostSearchDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
@@ -28,22 +29,20 @@ public class PostController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<GenericResponse> getAllPosts(
-            @RequestParam("page_number") int pageNumber,
-            @RequestParam("size") int size,
-            @RequestParam("keyword") String keyword
-    ) {
-        PostPageResponse postPageResponse = postService.getAllPosts(pageNumber, size, keyword);
+            @RequestParam(value = "page_number", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestBody PostSearchDTO postSearchDTO
+            ) {
+        PostPageResponse postPageResponse = postService.getAllPosts(pageNumber, size, postSearchDTO);
         return ResponseEntity.ok(GenericResponse.success(postPageResponse));
     }
 
-    @GetMapping("/{code}")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<GenericResponse> getPostByCode(@PathVariable("code") UUID code) {
-        PostResponse postResponse = postService.getPostByCode(code);
-        return ResponseEntity.ok(GenericResponse.success(postResponse));
-    }
+//    @GetMapping("/{code}")
+//    public ResponseEntity<GenericResponse> getPostByCode(@PathVariable("code") UUID code) {
+//        PostResponse postResponse = postService.getPostByCode(code);
+//        return ResponseEntity.ok(GenericResponse.success(postResponse));
+//    }
 
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
@@ -74,7 +73,10 @@ public class PostController {
     @DeleteMapping("/{code}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
             "AND @customSecurityExpression.isPostOwner(#code)")
-    public ResponseEntity<GenericResponse> deletePost(@PathVariable("code") UUID code, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<GenericResponse> deletePost(
+            @PathVariable("code") UUID code,
+            HttpServletRequest httpServletRequest
+    ) {
         postService.deletePost(code);
         return ResponseEntity.ok().body(GenericResponse.success(code));
     }

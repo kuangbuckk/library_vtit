@@ -4,6 +4,7 @@ import com.project.library.components.JwtTokenUtils;
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
+import com.project.library.dtos.UserSearchDTO;
 import com.project.library.entities.User;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.LoginResponse;
@@ -39,22 +40,22 @@ public class UserController {
     public ResponseEntity<GenericResponse> getAllUsers(
             @RequestParam(value = "page_number", defaultValue = "0") int pageNumber,
             @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestBody UserSearchDTO userSearchDTO,
             HttpServletRequest httpServletRequest
     ) {
-        UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, keyword);
+        UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, userSearchDTO);
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
     }
     
-    @GetMapping("/{code}")
-    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-    public ResponseEntity<GenericResponse> getUserByCode(
-            @PathVariable UUID code,
-            HttpServletRequest httpServletRequest
-    ) {
-        UserResponse userResponse = userService.getUserByCode(code);
-        return ResponseEntity.ok(GenericResponse.success(userResponse));
-    }
+//    @GetMapping("/{code}")
+//    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+//    public ResponseEntity<GenericResponse> getUserByCode(
+//            @PathVariable UUID code,
+//            HttpServletRequest httpServletRequest
+//    ) {
+//        UserResponse userResponse = userService.getUserByCode(code);
+//        return ResponseEntity.ok(GenericResponse.success(userResponse));
+//    }
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(
@@ -70,11 +71,6 @@ public class UserController {
     ) {
         LoginResponse loginResponse = userService.login(loginDTO.getUsername(), loginDTO.getPassword());
         String refreshToken = loginResponse.getRefreshToken();
-//        Cookie cookie = new Cookie("x-auth-refresh-token", refreshToken);
-//        cookie.setHttpOnly(true);
-////        cookie.setPath("/");
-////        cookie.setMaxAge(60 * 60 * 24 * 30);
-//        response.addCookie(cookie);
         ResponseCookie cookie = ResponseCookie.from("x-auth-refresh-token", refreshToken)
                 .httpOnly(true)
                 .secure(true)
@@ -102,10 +98,18 @@ public class UserController {
      */
     @PostMapping("/refresh-token")
     public ResponseEntity<GenericResponse> refreshToken(
-            @CookieValue(name = "x-auth-refresh-token") String refreshToken
+            @CookieValue(name = "x-auth-refresh-token") String refreshToken,
+            HttpServletResponse response
     ) throws Exception {
-        String accessToken = userService.refreshToken(refreshToken);
-        return ResponseEntity.ok(GenericResponse.success(accessToken));
+        LoginResponse loginResponse = userService.refreshToken(refreshToken);
+        ResponseCookie cookie = ResponseCookie.from("x-auth-refresh-token", loginResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(60 * 60 * 24 * 7)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+        return ResponseEntity.ok(GenericResponse.success(loginResponse.getToken()));
     }
 
     @PostMapping("/logout")

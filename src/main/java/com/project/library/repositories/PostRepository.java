@@ -1,5 +1,6 @@
 package com.project.library.repositories;
 
+import com.project.library.dtos.PostSearchDTO;
 import com.project.library.entities.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,9 @@ import java.util.UUID;
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
     @Query("SELECT p FROM Post p WHERE " +
-            ":keyword IS NULL OR :keyword = '' OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%")
-    Page<Post> findAll(Pageable pageable, @Param("keyword") String keyword);
+            "p.title LIKE %:#{#postSearchDTO.title}% OR " +
+            "p.content LIKE %:#{#postSearchDTO.content}% OR " +
+            "p.user.code = :#{#postSearchDTO.userCode} OR " +
+            "p.book.code = :#{#postSearchDTO.bookCode}")
+    Page<Post> findAll(Pageable pageable, @Param("postSearchDTO") PostSearchDTO postSearchDTO);
 }

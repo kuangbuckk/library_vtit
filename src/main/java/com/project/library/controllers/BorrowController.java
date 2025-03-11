@@ -2,6 +2,7 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.BorrowDTO;
+import com.project.library.dtos.BorrowSearchDTO;
 import com.project.library.entities.Borrow;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
@@ -30,27 +31,27 @@ public class BorrowController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> getBorrows(
             @RequestParam("page_number") int pageNumber,
             @RequestParam("size") int size,
+            @RequestBody BorrowSearchDTO borrowSearchDTO,
             HttpServletRequest httpServletRequest
     ) {
-        BorrowPageResponse borrowPageResponse = borrowService.getAllBorrows(PageRequest.of(pageNumber, size));
+        BorrowPageResponse borrowPageResponse = borrowService.getAllBorrows(pageNumber, size, borrowSearchDTO);
         return ResponseEntity.ok(GenericResponse.success(borrowPageResponse));
     }
 
-    @GetMapping("/{code}")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
-    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-    public ResponseEntity<GenericResponse> getBorrow(
-            @PathVariable String code,
-            HttpServletRequest httpServletRequest
-    ) {
-        BorrowResponse borrowResponse = borrowService.getBorrowByCode(UUID.fromString(code));
-        return ResponseEntity.ok(GenericResponse.success(borrowResponse));
-    }
+//    @GetMapping("/{code}")
+////    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
+//    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+//    public ResponseEntity<GenericResponse> getBorrow(
+//            @PathVariable String code,
+//            HttpServletRequest httpServletRequest
+//    ) {
+//        BorrowResponse borrowResponse = borrowService.getBorrowByCode(UUID.fromString(code));
+//        return ResponseEntity.ok(GenericResponse.success(borrowResponse));
+//    }
 
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
@@ -66,7 +67,6 @@ public class BorrowController {
     }
 
     @PutMapping("/update/{code}")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateBorrow(
             @RequestBody @Valid BorrowDTO borrowDTO,
@@ -81,7 +81,6 @@ public class BorrowController {
     }
 
     @DeleteMapping("/{code}")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> deleteBorrow(
             @PathVariable String code,
@@ -95,7 +94,6 @@ public class BorrowController {
     }
 
     @DeleteMapping("/destroy/{code}")
-//    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> destroyBorrow(
             @PathVariable String code,
