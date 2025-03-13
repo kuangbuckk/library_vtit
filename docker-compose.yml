@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  library-backend:
+    image: library:v3
+    ports:
+      - "8090:8080"
+    container_name: library-1
+    env_file:
+      - .env
+    restart: always
+  postgres-db:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    container_name: postgres-1
+    restart: always
+    volumes:
+      - /pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: phandinhphung30
