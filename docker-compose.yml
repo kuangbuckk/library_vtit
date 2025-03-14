@@ -7,15 +7,18 @@ services:
     container_name: library-1
     env_file:
       - .env
-    restart: always
+    working_dir: /app
+    volumes:
+      - ./:/app
   postgres-db:
     image: postgres:latest
     ports:
       - "5433:5432"
     container_name: postgres-1
-    restart: always
     volumes:
-      - /pg_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: phandinhphung30
+      - pg_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+volumes:
+  pg_data:
