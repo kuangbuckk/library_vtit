@@ -19,6 +19,7 @@ public class BookResponse {
     private UUID code;
     private String author;
     private String title;
+    private int pageCount;
     private int amount;
 
     @JsonProperty("category_names")
@@ -34,6 +35,7 @@ public class BookResponse {
                 .code(book.getCode())
                 .author(book.getAuthor())
                 .title(book.getTitle())
+                .pageCount(book.getPageCount())
                 .amount(book.getAmount())
                 .categoryNames(categoryNames)
                 .auditorResponse(AuditorResponse.builder()

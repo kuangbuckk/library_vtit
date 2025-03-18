@@ -27,6 +27,10 @@ public class BookDTO {
     @Min(value = 0, message = "Amount can't be less than 0")
     private int amount;
 
+    @JsonProperty("page_count")
+    @Min(value = 0, message = "Amount can't be less than 0")
+    private int pageCount;
+
     @JsonProperty("category_codes")
     private List<String> categoryCodes;
 }

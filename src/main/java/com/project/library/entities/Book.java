@@ -1,7 +1,5 @@
 package com.project.library.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -28,6 +26,10 @@ public class Book extends BaseEntity {
 
     @Column(name ="author", nullable = false)
     private String author;
+
+    @Column(name ="page_count", nullable = false)
+    @Min(value = 0)
+    private Integer pageCount;
 
     @Column(name ="amount", nullable = false)
     @Min(value = 0)
