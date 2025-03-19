@@ -1,7 +1,7 @@
 package com.project.library.services;
 
 import com.project.library.dtos.BorrowDTO;
-import com.project.library.dtos.BorrowSearchDTO;
+import com.project.library.dtos.search.BorrowSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Borrow;
 import com.project.library.constants.BorrowStatus;
@@ -19,7 +19,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

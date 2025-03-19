@@ -1,14 +1,14 @@
 package com.project.library.services.interfaces;
 
 import com.project.library.dtos.BookDTO;
-import com.project.library.dtos.BookSearchDTO;
+import com.project.library.dtos.search.BookSearchDTO;
 import com.project.library.entities.Book;
-import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.responses.BookPageResponse;
 import com.project.library.responses.BookResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,4 +19,7 @@ public interface IBookService {
     BookResponse updateBook(BookDTO bookDTO, UUID code);
     BookResponse deleteBook(UUID code);
     void destroyBook(UUID code);
+
+    byte[] exportBookExcelReport() throws FileNotFoundException;
+    boolean isBookExistByTitle(String title);
 }

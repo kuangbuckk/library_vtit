@@ -1,7 +1,7 @@
 package com.project.library.services;
 
 import com.project.library.dtos.PostDTO;
-import com.project.library.dtos.PostSearchDTO;
+import com.project.library.dtos.search.PostSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Post;
 import com.project.library.entities.User;
