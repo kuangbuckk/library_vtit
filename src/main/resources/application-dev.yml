@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: "application-common.yml"
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+logging:
+  level:
+    org.springframework.security: DEBUG

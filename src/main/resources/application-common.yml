@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: library
+  jpa:
+      show-sql: true
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+  messages:
+      basename: i18n/messages
+  main:
+      allow-bean-definition-overriding: true
+  server:
+    servlet:
+      context-path: ${CONTEXT_PATH}
+api:
+  prefix: ${API_PREFIX}
+jwt:
+  expiration: ${JWT_EXPIRATION}
+  refresh_expiration: ${JWT_REFRESH_EXPIRATION}
+  secretKey: ${JWT_SECRET_KEY}
+external-resource:
+  google-book-url: ${GOOGLE_BOOK_URL}
+rest-template:
+  connection-time-out: 100000
+  read-time-out: 200000
+#spring doc configurations
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+  api-docs:
+    path: /api-docs
+  show-actuator: true
