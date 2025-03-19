@@ -1,6 +1,6 @@
 package com.project.library.repositories;
 
-import com.project.library.dtos.UserSearchDTO;
+import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

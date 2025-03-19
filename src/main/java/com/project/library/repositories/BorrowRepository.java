@@ -1,6 +1,6 @@
 package com.project.library.repositories;
 
-import com.project.library.dtos.BorrowSearchDTO;
+import com.project.library.dtos.search.BorrowSearchDTO;
 import com.project.library.entities.Borrow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

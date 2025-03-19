@@ -1,7 +1,6 @@
-package com.project.library.dtos;
+package com.project.library.dtos.search;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
