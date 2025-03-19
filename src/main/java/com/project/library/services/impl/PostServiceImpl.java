@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.PostDTO;
 import com.project.library.dtos.search.PostSearchDTO;
@@ -11,7 +11,7 @@ import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
-import com.project.library.services.interfaces.IPostService;
+import com.project.library.services.PostService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class PostServiceImpl implements IPostService {
+public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;

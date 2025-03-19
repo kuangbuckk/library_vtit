@@ -1,4 +1,4 @@
-package com.project.library.services.interfaces;
+package com.project.library.services;
 
 import com.project.library.dtos.UserDTO;
 import com.project.library.dtos.search.UserSearchDTO;
@@ -8,7 +8,7 @@ import com.project.library.responses.UserResponse;
 
 import java.util.UUID;
 
-public interface IUserService {
+public interface UserService {
     //CRUD
     UserPageResponse getUsers(int pageNumber, int size, UserSearchDTO userSearchDTO);
     UserResponse getUserByCode(UUID code);

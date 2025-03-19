@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.components.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
@@ -12,8 +12,8 @@ import com.project.library.repositories.UserRepository;
 import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
-import com.project.library.services.interfaces.ITokenService;
-import com.project.library.services.interfaces.IUserService;
+import com.project.library.services.TokenService;
+import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,10 +30,10 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleGroupRepository roleGroupRepository;
-    private final ITokenService tokenService;
+    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final JwtTokenUtils jwtTokenUtils;

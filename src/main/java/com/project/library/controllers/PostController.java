@@ -2,30 +2,25 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.PostDTO;
-import com.project.library.dtos.PostSearchDTO;
+import com.project.library.dtos.search.PostSearchDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.PostPageResponse;
-import com.project.library.responses.PostResponse;
-import com.project.library.services.interfaces.IPostService;
+import com.project.library.services.PostService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("${api.prefix}/posts")
 public class PostController {
-    private final IPostService postService;
+    private final PostService postService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

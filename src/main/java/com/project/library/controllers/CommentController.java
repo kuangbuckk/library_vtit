@@ -2,30 +2,24 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.CommentDTO;
-import com.project.library.entities.Comment;
 import com.project.library.responses.CommentResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.ICommentService;
+import com.project.library.services.CommentService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/comments")
 @AllArgsConstructor
 public class CommentController {
-    private final ICommentService commentService;
+    private final CommentService commentService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

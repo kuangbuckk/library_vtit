@@ -1,38 +1,31 @@
 package com.project.library.controllers;
 
-import com.project.library.components.JwtTokenUtils;
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
-import com.project.library.dtos.UserSearchDTO;
-import com.project.library.entities.User;
+import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
-import com.project.library.services.interfaces.IUserService;
+import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
 @AllArgsConstructor
 public class UserController {
-    private final IUserService userService;
+    private final UserService userService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

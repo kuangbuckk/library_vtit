@@ -1,13 +1,12 @@
-package com.project.library.services.interfaces;
+package com.project.library.services;
 
 import com.project.library.dtos.CommentDTO;
-import com.project.library.entities.Comment;
 import com.project.library.responses.CommentResponse;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ICommentService {
+public interface CommentService {
     List<CommentResponse> getAllComment();
     CommentResponse getCommentByCode(UUID code);
     CommentResponse addComment(CommentDTO CommentDTO);

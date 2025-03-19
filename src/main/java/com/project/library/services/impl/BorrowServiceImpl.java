@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.BorrowDTO;
 import com.project.library.dtos.search.BorrowSearchDTO;
@@ -13,7 +13,7 @@ import com.project.library.repositories.BorrowRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
-import com.project.library.services.interfaces.IBorrowService;
+import com.project.library.services.BorrowService;
 import com.project.library.utils.MessageKeys;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -29,7 +29,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 @Transactional
-public class BorrowServiceImpl implements IBorrowService {
+public class BorrowServiceImpl implements BorrowService {
     private final BorrowRepository borrowRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;

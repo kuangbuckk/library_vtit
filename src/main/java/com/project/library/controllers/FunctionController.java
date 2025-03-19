@@ -2,10 +2,9 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.FunctionDTO;
-import com.project.library.entities.Function;
 import com.project.library.responses.FunctionResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IFunctionService;
+import com.project.library.services.FunctionService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -14,18 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/functions")
 @AllArgsConstructor
 public class FunctionController {
-    private final IFunctionService functionService;
+    private final FunctionService functionService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

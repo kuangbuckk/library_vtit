@@ -1,4 +1,4 @@
-package com.project.library.services.interfaces;
+package com.project.library.services;
 
 import com.project.library.dtos.PostDTO;
 import com.project.library.dtos.search.PostSearchDTO;
@@ -7,7 +7,7 @@ import com.project.library.responses.PostResponse;
 
 import java.util.UUID;
 
-public interface IPostService {
+public interface PostService {
     PostPageResponse getAllPosts(int pageNumber, int size, PostSearchDTO postSearchDTO);
     PostResponse getPostByCode(UUID code);
     PostResponse addPost(PostDTO postDTO);

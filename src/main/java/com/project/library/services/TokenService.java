@@ -1,10 +1,10 @@
-package com.project.library.services.interfaces;
+package com.project.library.services;
 
 import com.project.library.entities.Token;
 import com.project.library.entities.User;
 import com.project.library.responses.LoginResponse;
 
-public interface ITokenService {
+public interface TokenService {
     Token addToken(User user, String token, boolean isMobileDevice);
     String generateRefreshTokenAfterLogin(User existingUser);
     LoginResponse refreshToken(String refreshToken, User existingUser) throws Exception;

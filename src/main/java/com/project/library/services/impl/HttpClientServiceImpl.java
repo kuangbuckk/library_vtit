@@ -11,6 +11,7 @@ import com.project.library.repositories.BookRepository;
 import com.project.library.repositories.CategoryRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.BookResponse;
+import com.project.library.services.HttpClientService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class HttpClientService implements com.project.library.services.HttpClientService {
+public class HttpClientServiceImpl implements HttpClientService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final BookRepository bookRepository;
@@ -39,7 +40,7 @@ public class HttpClientService implements com.project.library.services.HttpClien
     @Value("${external-resource.google-book-url}")
     private String googleApiURl;
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientService.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientServiceImpl.class);
 
     @Override
     public GoogleBooksDTO getBooksFromGoogleApi() throws JsonProcessingException {

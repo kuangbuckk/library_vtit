@@ -2,22 +2,17 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.CategoryDTO;
-import com.project.library.entities.Category;
 import com.project.library.responses.CategoryResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.CategoryServiceImpl;
-import com.project.library.services.interfaces.ICategoryService;
+import com.project.library.services.CategoryService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CategoryController {
     //SpringBoot sẽ tự động tìm implementation của interface này và inject vào
-    private final ICategoryService categoryService;
+    private final CategoryService categoryService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

@@ -1,11 +1,11 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.FunctionDTO;
 import com.project.library.entities.Function;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.FunctionRepository;
 import com.project.library.responses.FunctionResponse;
-import com.project.library.services.interfaces.IFunctionService;
+import com.project.library.services.FunctionService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class FunctionServiceImpl implements IFunctionService {
+public class FunctionServiceImpl implements FunctionService {
     private final FunctionRepository functionRepository;
 
     @Override

@@ -1,13 +1,12 @@
-package com.project.library.services.interfaces;
+package com.project.library.services;
 
 import com.project.library.dtos.FunctionDTO;
-import com.project.library.entities.Function;
 import com.project.library.responses.FunctionResponse;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface IFunctionService {
+public interface FunctionService {
     List<FunctionResponse> getAllFunctions();
     FunctionResponse getFunctionByCode(UUID code);
     FunctionResponse addFunction(FunctionDTO functionDTO);

@@ -2,34 +2,29 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.BookDTO;
-import com.project.library.dtos.BookSearchDTO;
-import com.project.library.entities.Book;
+import com.project.library.dtos.search.BookSearchDTO;
 import com.project.library.responses.BookPageResponse;
 import com.project.library.responses.BookResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IBookService;
+import com.project.library.services.BookService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.io.FileNotFoundException;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/books")
 @AllArgsConstructor
 public class BookController {
-    private final IBookService bookService;
+    private final BookService bookService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
@@ -50,6 +45,16 @@ public class BookController {
 //        return ResponseEntity.ok(GenericResponse.success(bookResponse));
 //
 //    }
+
+    @GetMapping("/excel-report")
+    public ResponseEntity<byte[]> downloadExcel() throws FileNotFoundException {
+        byte[] excelFile = bookService.exportBookExcelReport();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employee_report.xlsx");
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        return new ResponseEntity<>(excelFile, headers, HttpStatus.OK);
+    }
 
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")

@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.CommentDTO;
 import com.project.library.entities.Comment;
@@ -9,7 +9,7 @@ import com.project.library.repositories.CommentRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.CommentResponse;
-import com.project.library.services.interfaces.ICommentService;
+import com.project.library.services.CommentService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class CommentServiceImpl implements ICommentService {
+public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;

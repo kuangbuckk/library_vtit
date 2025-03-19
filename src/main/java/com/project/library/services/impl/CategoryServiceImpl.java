@@ -1,25 +1,22 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.CategoryDTO;
 import com.project.library.entities.Category;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.CategoryRepository;
 import com.project.library.responses.CategoryResponse;
-import com.project.library.services.interfaces.ICategoryService;
+import com.project.library.services.CategoryService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
-import org.aspectj.bridge.Message;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class CategoryServiceImpl implements ICategoryService {
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final MessageSource messageSource;
 

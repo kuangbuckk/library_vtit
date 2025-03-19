@@ -2,32 +2,26 @@ package com.project.library.controllers;
 
 import com.project.library.components.LocalizationUtils;
 import com.project.library.dtos.BorrowDTO;
-import com.project.library.dtos.BorrowSearchDTO;
-import com.project.library.entities.Borrow;
+import com.project.library.dtos.search.BorrowSearchDTO;
 import com.project.library.responses.BorrowPageResponse;
 import com.project.library.responses.BorrowResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IBorrowService;
+import com.project.library.services.BorrowService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/borrows")
 @AllArgsConstructor
 public class BorrowController {
-    private final IBorrowService borrowService;
+    private final BorrowService borrowService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")

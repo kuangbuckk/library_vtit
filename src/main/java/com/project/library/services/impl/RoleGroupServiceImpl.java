@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.RoleGroupDTO;
 import com.project.library.entities.Function;
@@ -7,7 +7,7 @@ import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.FunctionRepository;
 import com.project.library.repositories.RoleGroupRepository;
 import com.project.library.responses.RoleGroupResponse;
-import com.project.library.services.interfaces.IRoleGroupService;
+import com.project.library.services.RoleGroupService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class RoleGroupServiceImpl implements IRoleGroupService {
+public class RoleGroupServiceImpl implements RoleGroupService {
     private final RoleGroupRepository roleGroupRepository;
     private final FunctionRepository functionRepository;
 
