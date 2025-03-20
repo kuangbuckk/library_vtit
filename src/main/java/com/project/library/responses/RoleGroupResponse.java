@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class RoleGroupResponse {
-    private UUID code;
+    private Long id;
 
     @JsonProperty(value = "role_group_name")
     private String roleGroupName;
@@ -34,7 +34,7 @@ public class RoleGroupResponse {
                 .toList();
 
         return RoleGroupResponse.builder()
-                .code(roleGroup.getCode())
+                .id(roleGroup.getId())
                 .roleGroupName(roleGroup.getRoleGroupName())
                 .description(roleGroup.getDescription())
                 .functionNames(functionNames)

@@ -57,8 +57,8 @@ public class UserDTO {
     @NotBlank(message = "Address is required")
     private String address;
 
-    @JsonProperty(value = "role_group_codes")
+    @JsonProperty(value = "role_group_ids")
     @NotEmpty(message = "Role is required")
     @Size(min = 1, message = "Must contain at least one role")
-    private List<UUID> roleGroupCodes;
+    private List<Long> roleGroupIds;
 }

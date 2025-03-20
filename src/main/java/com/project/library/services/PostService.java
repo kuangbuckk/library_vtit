@@ -5,13 +5,12 @@ import com.project.library.dtos.search.PostSearchDTO;
 import com.project.library.responses.PostPageResponse;
 import com.project.library.responses.PostResponse;
 
-import java.util.UUID;
 
 public interface PostService {
     PostPageResponse getAllPosts(int pageNumber, int size, PostSearchDTO postSearchDTO);
-    PostResponse getPostByCode(UUID code);
+    PostResponse getPostById(Long id);
     PostResponse addPost(PostDTO postDTO);
-    PostResponse updatePost(PostDTO postDTO, UUID code);
-    PostResponse deletePost(UUID code);
-    void destroyPost(UUID code);
+    PostResponse updatePost(PostDTO postDTO, Long id);
+    PostResponse deletePost(Long id);
+    void destroyPost(Long id);
 }

@@ -14,6 +14,10 @@ import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +25,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Primary
 @AllArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
@@ -50,26 +56,24 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse getBookByCode(UUID code) {
+    public BookResponse getBookByCode(Long id) {
         Book book = bookRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
         return BookResponse.fromBook(book);
     }
 
     @Override
     @Transactional
     public BookResponse addBook(BookDTO bookDTO) {
-        List<UUID> categoryCodes = bookDTO.getCategoryCodes()
-                .stream()
-                .map(categoryCode -> UUID.fromString(categoryCode))
-                .toList();
-        List<Category> categories = categoryRepository.findCategoriesByCodeIn(categoryCodes);
-
+        List<Category> categories = categoryRepository.findCategoriesByIdIn(bookDTO.getCategoryIds());
         Book newBook = Book.builder()
                 .title(bookDTO.getTitle())
                 .author(bookDTO.getAuthor())
                 .amount(bookDTO.getAmount())
+                .language(bookDTO.getLanguage())
+                .description(bookDTO.getDescription())
+                .pageCount(bookDTO.getPageCount())
                 .categories(categories)
                 .build();
         bookRepository.save(newBook);
@@ -78,15 +82,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookResponse updateBook(BookDTO bookDTO, UUID code) {
-        List<UUID> categoryCodes = bookDTO.getCategoryCodes()
-                .stream()
-                .map(categoryCode -> UUID.fromString(categoryCode))
-                .toList();
-        List<Category> categories = categoryRepository.findCategoriesByCodeIn(categoryCodes);
+    public BookResponse updateBook(BookDTO bookDTO, Long id) {
+        List<Category> categories = categoryRepository.findCategoriesByIdIn(bookDTO.getCategoryIds());
 
-        Book existingBook = bookRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
 
         existingBook.setTitle(bookDTO.getTitle());
         existingBook.setAuthor(bookDTO.getAuthor());
@@ -98,9 +98,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse deleteBook(UUID code) {
-        Book book = bookRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+    public BookResponse deleteBook(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
         book.setIsDeleted(true);
         bookRepository.save(book);
         return BookResponse.fromBook(book);
@@ -108,56 +108,30 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public void destroyBook(UUID code) {
-        Book book = bookRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+    public void destroyBook(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
         bookRepository.delete(book);
     }
 
     @Override
-    public byte[] exportBookExcelReport() throws FileNotFoundException {
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream() ) {
-            Sheet sheet = workbook.createSheet("Data Sheet");
-            Row headerRow = sheet.createRow(0);
-            CellStyle headerStyle = getHeaderStyle(workbook);
-
-            List<Book> books = bookRepository.findAll();
-            Field[] fields = books.get(0).getClass().getFields();
-
-            for (int i = 0; i < fields.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(fields[i].getName());  // Dynamically set column names
-                cell.setCellStyle(headerStyle);
-            }
-
-            int rowNum = 1;
-            for (Book book : books) {
-                Row row = sheet.createRow(rowNum++);
-                int columnNum = 0;
-                row.createCell(columnNum++).setCellValue(book.getCode().toString());
-                row.createCell(columnNum++).setCellValue(book.getTitle());
-                row.createCell(columnNum++).setCellValue(book.getAuthor());
-                row.createCell(columnNum++).setCellValue(book.getCreatedAt().toString());
-                row.createCell(columnNum++).setCellValue(book.getUpdatedAt().toString());
-                row.createCell(columnNum).setCellValue(book.getAuthor());
-            }
-            workbook.write(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating Excel file", e);
+    public byte[] exportBookExcelReport() {
+        List<Book> books = bookRepository.findAll();
+        try (InputStream is = new ClassPathResource("templates/book-template.xlsx").getInputStream()) {
+            Context context = new Context();
+            context.putVar("books", books);
+            context.putVar("createdAt", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JxlsHelper.getInstance().processTemplate(is, outputStream, context);
+            byte[] excelContent = outputStream.toByteArray();
+            return excelContent;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public boolean isBookExistByTitle(String title) {
         return bookRepository.existsByTitle(title);
-    }
-
-    private CellStyle getHeaderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        style.setFont(font);
-        return style;
     }
 }

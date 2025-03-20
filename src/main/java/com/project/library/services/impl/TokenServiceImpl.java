@@ -1,6 +1,6 @@
 package com.project.library.services.impl;
 
-import com.project.library.components.JwtTokenUtils;
+import com.project.library.utils.JwtTokenUtils;
 import com.project.library.entities.Token;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
@@ -59,7 +59,7 @@ public class TokenServiceImpl implements TokenService {
     public LoginResponse refreshToken(String refreshToken, User existingUser) throws Exception {
         Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
         if (tokenOptional.isEmpty()) {
-            throw new DataNotFoundException("Token not found for user with code ", existingUser.getCode());
+            throw new DataNotFoundException("Token not found for user with code ", existingUser.getId());
         }
         Token existingToken = tokenOptional.get();
         if (!jwtTokenUtils.validateToken(existingToken.getRefreshToken(), existingUser)) {

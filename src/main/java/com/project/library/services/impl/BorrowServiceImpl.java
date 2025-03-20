@@ -49,18 +49,18 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public BorrowResponse getBorrowByCode(UUID code) {
+    public BorrowResponse getBorrowByCode(Long id) {
         Borrow existingBorrow = borrowRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
         return BorrowResponse.fromBorrow(existingBorrow);
     }
 
     @Override
     public BorrowResponse addBorrow(BorrowDTO borrowDTO) {
-        Book existingBook = bookRepository.findById(UUID.fromString(borrowDTO.getBookCode()))
+        Book existingBook = bookRepository.findById(borrowDTO.getBookId())
                 .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, UUID.fromString(borrowDTO.getBookCode()))
+                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, borrowDTO.getBookId())
                 );
         int remainBookCount = existingBook.getAmount();
         if (!isAvailableToBorrow(remainBookCount)) {
@@ -71,9 +71,9 @@ public class BorrowServiceImpl implements BorrowService {
         existingBook.setAmount(existingBook.getAmount() - borrowDTO.getBorrowAmount());
         bookRepository.saveAndFlush(existingBook);
 
-        User existingUser = userRepository.findById(UUID.fromString(borrowDTO.getUserCode()))
+        User existingUser = userRepository.findById(borrowDTO.getUserId())
                 .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, UUID.fromString(borrowDTO.getUserCode()))
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, borrowDTO.getUserId())
                 );
 
         Borrow newBorrow = Borrow.builder()
@@ -89,9 +89,9 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public BorrowResponse updateBorrow(BorrowDTO borrowDTO, UUID code) {
-        Borrow existingBorrow = borrowRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, code));
+    public BorrowResponse updateBorrow(BorrowDTO borrowDTO, Long id) {
+        Borrow existingBorrow = borrowRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
         Book existingBook = existingBorrow.getBook();
 
         if (borrowDTO.getStatus().equals(String.valueOf(BorrowStatus.RETURNED))) {
@@ -111,20 +111,20 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public BorrowResponse deleteBorrow(UUID code) {
+    public BorrowResponse deleteBorrow(Long id) {
         Borrow existingBorrow = borrowRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, id));
         existingBorrow.setIsDeleted(true);
         borrowRepository.save(existingBorrow);
         return BorrowResponse.fromBorrow(existingBorrow);
     }
 
     @Override
-    public void destroyBorrow(UUID code) {
+    public void destroyBorrow(Long id) {
         Borrow existingBorrow = borrowRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.BORROW_NOT_FOUND, id));
         borrowRepository.delete(existingBorrow);
     }
 

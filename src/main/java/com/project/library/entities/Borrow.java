@@ -15,18 +15,13 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Borrow extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
-
     @ManyToOne
-    @JoinColumn(name = "user_code", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "book_code", nullable = false)
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     @Column(name = "borrow_amount", nullable = false)

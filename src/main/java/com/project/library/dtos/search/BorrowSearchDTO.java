@@ -15,13 +15,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BorrowSearchDTO {
-    private UUID code;
+    private Long id;
 
-    @JsonProperty(value = "user_code")
-    private UUID userCode;
+    @JsonProperty(value = "user_id")
+    private UUID userId;
 
-    @JsonProperty(value = "book_code")
-    private UUID bookCode;
+    @JsonProperty(value = "book_id")
+    private UUID bookId;
 
     @JsonProperty(value = "borrow_amount")
     private int borrowAmount;

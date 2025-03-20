@@ -21,11 +21,11 @@ public class CommentDTO {
     @Size(min = 3, max = 255)
     private String content;
 
-    @JsonProperty(value = "user_code")
+    @JsonProperty(value = "user_id")
     @NotNull(message = "Comment must belong to a user")
-    private UUID userCode;
+    private Long userCode;
 
-    @JsonProperty(value = "post_code")
+    @JsonProperty(value = "post_id")
     @NotNull(message = "Comment must belong to a post")
-    private UUID postCode;
+    private Long postCode;
 }

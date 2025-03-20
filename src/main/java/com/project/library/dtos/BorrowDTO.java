@@ -15,13 +15,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BorrowDTO {
-    @JsonProperty(value = "user_code")
-    @NotBlank(message = "User code must not blank")
-    private String userCode;
+    @JsonProperty(value = "user_id")
+    @NotBlank(message = "User id must not blank")
+    private Long userId;
 
-    @JsonProperty(value = "book_code")
-    @NotBlank(message = "User code must not blank")
-    private String bookCode;
+    @JsonProperty(value = "book_id")
+    @NotBlank(message = "User id must not blank")
+    private Long bookId;
 
     @JsonProperty(value = "borrow_amount")
     @Min(value = 1, message = "Must borrow at least 1 book")

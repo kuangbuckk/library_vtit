@@ -16,8 +16,8 @@ public class PostSearchDTO {
     private UUID code;
     private String title;
     private String content;
-    @JsonProperty(value = "book_code")
-    private UUID bookCode;
-    @JsonProperty(value = "user_code")
-    private UUID userCode;
+    @JsonProperty(value = "book_id")
+    private UUID bookId;
+    @JsonProperty(value = "user_id")
+    private UUID userId;
 }

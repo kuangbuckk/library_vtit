@@ -2,8 +2,8 @@ package com.project.library.security;
 import com.project.library.configurations.RoleConfig;
 import com.project.library.entities.User;
 import com.project.library.responses.PostResponse;
-import com.project.library.services.interfaces.ICommentService;
-import com.project.library.services.interfaces.IPostService;
+import com.project.library.services.CommentService;
+import com.project.library.services.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -18,8 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomSecurityExpression {
     private final RoleConfig roleConfig;
-    private final IPostService postService;
-    private final ICommentService commentService;
+    private final PostService postService;
+    private final CommentService commentService;
 
     /**
      * @param(HttpServletRequest) request
@@ -51,12 +51,12 @@ public class CustomSecurityExpression {
      * @return boolean
      */
 
-    public boolean isPostOwner(UUID postCode) {
+    public boolean isPostOwner(Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof AnonymousAuthenticationToken) {
             return false;
         }
-        PostResponse existingPost = postService.getPostByCode(postCode);
+        PostResponse existingPost = postService.getPostById(postId);
         if (isSuperiorAuthorities(authentication)) {
             return true;
         }
@@ -64,7 +64,7 @@ public class CustomSecurityExpression {
                 .equals(((User) authentication.getPrincipal()).getUsername());
     }
 
-    public boolean isCommentOwner(UUID commentCode) {
+    public boolean isCommentOwner(Long commentId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof AnonymousAuthenticationToken) {
             return false;
@@ -72,7 +72,7 @@ public class CustomSecurityExpression {
         if (isSuperiorAuthorities(authentication)) {
             return true;
         }
-        return commentService.getCommentByCode(commentCode).getAuditor().getCreatedBy()
+        return commentService.getCommentById(commentId).getAuditor().getCreatedBy()
                 .equals(((User) authentication.getPrincipal()).getUsername());
     }
 

@@ -47,9 +47,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getPostByCode(UUID code) {
-        Post existingPost = postRepository.findById((code))
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+    public PostResponse getPostById(Long id) {
+        Post existingPost = postRepository.findById((id))
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
         return PostResponse.fromPost(existingPost);
     }
 
@@ -57,12 +57,12 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse addPost(PostDTO postDTO) {
         Book existingBook = bookRepository
-                .findById(postDTO.getBookCode())
+                .findById(postDTO.getBookId())
                 .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, postDTO.getBookCode()));
-        User user = userRepository.findById(postDTO.getUserCode())
+                        new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, postDTO.getBookId()));
+        User user = userRepository.findById(postDTO.getUserId())
                 .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, postDTO.getUserCode()));
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, postDTO.getUserId()));
         Post newPost = Post.builder()
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
@@ -75,10 +75,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostResponse updatePost(PostDTO postDTO, UUID code) {
+    public PostResponse updatePost(PostDTO postDTO, Long id) {
 
-        Post existingPost = postRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
         if (SecurityContextHolder.getContext().getAuthentication().getCredentials() != existingPost.getCreatedBy().getUsername()) {
 
         }
@@ -90,9 +90,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostResponse deletePost(UUID code) {
-        Post existingPost = postRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+    public PostResponse deletePost(Long id) {
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
         existingPost.setIsDeleted(true);
         postRepository.save(existingPost);
         return PostResponse.fromPost(existingPost);
@@ -100,9 +100,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void destroyPost(UUID code) {
-        Post existingPost = postRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, code));
+    public void destroyPost(Long id) {
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
         postRepository.delete(existingPost);
     }
 }

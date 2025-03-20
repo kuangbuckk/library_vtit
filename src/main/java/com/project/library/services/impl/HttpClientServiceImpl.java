@@ -53,7 +53,7 @@ public class HttpClientServiceImpl implements HttpClientService {
 
     @Override
     @Transactional
-//    @Scheduled(fixedDelay = 20000)
+//    @Scheduled(fixedDelay = 30000)
     @Scheduled(cron = "0 0 0 ? * 1/7")
     public List<BookResponse> synchronizeBookFromGoogleApi() throws JsonProcessingException {
         String jsonResponse = restTemplate.getForObject(googleApiURl, String.class);
@@ -71,6 +71,8 @@ public class HttpClientServiceImpl implements HttpClientService {
             Book newBook = Book.builder()
                     .title(volumeInfo.getTitle())
                     .author(volumeInfo.getAuthors().toString())
+                    .language(volumeInfo.getLanguage())
+                    .description(volumeInfo.getDescription())
                     .pageCount(volumeInfo.getPageCount())
                     .amount(80) //Ko co data tren source nen fake du lieu tam
                     .categories(categories)
@@ -84,7 +86,7 @@ public class HttpClientServiceImpl implements HttpClientService {
     }
 
     private void authenticateAsAdmin(){
-        UserDetails userDetails = userRepository.findByUsername("testadmin1") //mock data for educational purpose
+        UserDetails userDetails = userRepository.findByUsername("admin1") //mock data for educational purpose
                 .orElseThrow(()-> new UsernameNotFoundException("Not found username"));
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new
                 UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

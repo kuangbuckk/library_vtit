@@ -22,10 +22,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
-
     @Column(name = "username", length = 30, nullable = false, unique = true)
     private String username;
 
@@ -56,8 +52,8 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_role_groups",
-            joinColumns = @JoinColumn(name = "role_group_code"),
-            inverseJoinColumns = @JoinColumn(name = "user_code")
+            joinColumns = @JoinColumn(name = "role_group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<RoleGroup> roleGroups;
 

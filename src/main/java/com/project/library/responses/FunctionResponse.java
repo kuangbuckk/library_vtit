@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class FunctionResponse {
-    private UUID code;
+    private Long id;
 
     @JsonProperty(value = "function_name")
     private String functionName;
@@ -36,7 +36,7 @@ public class FunctionResponse {
                     .toList();
         }
         return FunctionResponse.builder()
-                .code(function.getCode())
+                .id(function.getId())
                 .functionName(function.getFunctionName())
                 .description(function.getDescription())
                 .roleGroupNames(roleGroupName)

@@ -35,10 +35,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponse getCommentByCode(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
+    public CommentResponse getCommentById(Long id) {
+        Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()->
-                        new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+                        new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         return CommentResponse.fromComment(existingComment);
     }
 
@@ -62,18 +62,18 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponse updateComment(CommentDTO commentDTO, UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public CommentResponse updateComment(CommentDTO commentDTO, Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         existingComment.setContent(commentDTO.getContent());
         return CommentResponse.fromComment(existingComment);
     }
 
     @Override
     @Transactional
-    public CommentResponse deleteComment(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public CommentResponse deleteComment(Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         existingComment.setIsDeleted(true);
         commentRepository.save(existingComment);
         return CommentResponse.fromComment(existingComment);
@@ -81,9 +81,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void destroyComment(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public void destroyComment(Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         commentRepository.delete(existingComment);
     }
 }

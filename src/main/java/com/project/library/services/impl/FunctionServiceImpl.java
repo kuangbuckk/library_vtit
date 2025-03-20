@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -25,10 +24,10 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public FunctionResponse getFunctionByCode(UUID code) {
+    public FunctionResponse getFunctionByCode(Long id) {
         Function existingFunction = functionRepository
-                .findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, id));
         return FunctionResponse.fromFunction(existingFunction);
     }
 
@@ -43,9 +42,9 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public FunctionResponse updateFunction(FunctionDTO functionDTO, UUID code) {
-        Function existingFunction = functionRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, code));
+    public FunctionResponse updateFunction(FunctionDTO functionDTO, Long id) {
+        Function existingFunction = functionRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.FUNCTION_NOT_FOUND, id));
         existingFunction.setDescription(functionDTO.getDescription());
         existingFunction.setFunctionName(functionDTO.getFunctionName());
 
@@ -54,7 +53,7 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public void deleteFunction(UUID code) {
-        functionRepository.deleteById(code);
+    public void deleteFunction(Long id) {
+        functionRepository.deleteById(id);
     }
 }

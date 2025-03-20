@@ -1,6 +1,6 @@
 package com.project.library.services.impl;
 
-import com.project.library.components.JwtTokenUtils;
+import com.project.library.utils.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
 import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.entities.RoleGroup;
@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -54,19 +53,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserByCode(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse getUserByCode(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         return UserResponse.fromUser(existingUser);
     }
 
     @Override
     @Transactional
     public UserResponse createUser(UserDTO userDTO) {
-        if (userDTO.getRoleGroupCodes().isEmpty()) {
+        if (userDTO.getRoleGroupIds().isEmpty()) {
             throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
         }
-        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupCodes());
+        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupIds());
         applicationEventPublisher.publishEvent(new UserRegisterEvent(userDTO.getUsername()));
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
@@ -85,9 +84,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(UserDTO User, UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse updateUser(UserDTO User, Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         existingUser.setFullName(User.getFullName());
         existingUser.setUsername(User.getUsername());
         existingUser.setEmail(User.getEmail());
@@ -100,9 +99,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse deleteUser(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse deleteUser(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         existingUser.setIsDeleted(true);
         existingUser.setIsActive(false);
         userRepository.save(existingUser);
@@ -111,9 +110,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void destroyUser(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public void destroyUser(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         userRepository.delete(existingUser);
     }
 

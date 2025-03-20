@@ -6,16 +6,14 @@ import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 
-import java.util.UUID;
-
 public interface UserService {
     //CRUD
     UserPageResponse getUsers(int pageNumber, int size, UserSearchDTO userSearchDTO);
-    UserResponse getUserByCode(UUID code);
+    UserResponse getUserByCode(Long id);
     UserResponse createUser(UserDTO User);
-    UserResponse updateUser(UserDTO User, UUID code);
-    UserResponse deleteUser(UUID code);
-    void destroyUser(UUID code);
+    UserResponse updateUser(UserDTO User, Long id);
+    UserResponse deleteUser(Long id);
+    void destroyUser(Long id);
 
     //Actions
     LoginResponse login(String username, String password);

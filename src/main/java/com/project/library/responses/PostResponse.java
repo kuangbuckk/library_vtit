@@ -18,12 +18,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostResponse {
-    private UUID code;
+    private Long id;
     private String title;
     private String content;
 
-    @JsonProperty(value = "book_code")
-    private UUID bookCode;
+    @JsonProperty(value = "book_id")
+    private Long bookId;
 
     @JsonProperty(value = "book_title")
     private String bookTitle;
@@ -44,10 +44,10 @@ public class PostResponse {
         }
         Book existingBook = post.getBook();
         return PostResponse.builder()
-                .code(post.getCode())
+                .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .bookCode(existingBook.getCode())
+                .bookId(existingBook.getId())
                 .bookTitle(existingBook.getTitle())
                 .comments(comments)
                 .auditor(AuditorResponse.builder()

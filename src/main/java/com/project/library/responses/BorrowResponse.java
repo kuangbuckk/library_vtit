@@ -12,16 +12,16 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 public class BorrowResponse {
-    private UUID code;
+    private Long id;
 
-    @JsonProperty(value = "user_code")
-    private UUID userCode;
+    @JsonProperty(value = "user_id")
+    private Long userId;
 
     @JsonProperty(value = "user_name")
     private String userName;
 
-    @JsonProperty(value = "book_code")
-    private UUID bookCode;
+    @JsonProperty(value = "book_id")
+    private Long bookId;
 
     @JsonProperty(value = "book_name")
     private String bookName;
@@ -45,10 +45,10 @@ public class BorrowResponse {
 
     public static BorrowResponse fromBorrow(Borrow borrow) {
         return BorrowResponse.builder()
-                .code(borrow.getCode())
-                .userCode(borrow.getUser().getCode())
+                .id(borrow.getId())
+                .userId(borrow.getUser().getId())
                 .userName(borrow.getUser().getUsername())
-                .bookCode(borrow.getBook().getCode())
+                .bookId(borrow.getBook().getId())
                 .bookName(borrow.getBook().getTitle())
                 .borrowAmount(borrow.getBorrowAmount())
                 .borrowAt(borrow.getReturnAt())

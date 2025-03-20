@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -30,16 +29,16 @@ public class RoleGroupServiceImpl implements RoleGroupService {
     }
 
     @Override
-    public RoleGroupResponse getRoleGroupByCode(UUID code) {
+    public RoleGroupResponse getRoleGroupByCode(Long id) {
         RoleGroup roleGroup = roleGroupRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, id));
         return RoleGroupResponse.fromRoleGroup(roleGroup);
     }
 
     @Override
     public RoleGroupResponse createRoleGroup(RoleGroupDTO roleGroupDTO) {
-        List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionCodes());
+        List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionIds());
         RoleGroup newRoleGroup = RoleGroup.builder()
                 .roleGroupName(roleGroupDTO.getRoleGroupName())
                 .description(roleGroupDTO.getDescription())
@@ -50,10 +49,10 @@ public class RoleGroupServiceImpl implements RoleGroupService {
     }
 
     @Override
-    public RoleGroupResponse updateRoleGroup(RoleGroupDTO roleGroupDTO, UUID code) {
-        List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionCodes());
-        RoleGroup existingRoleGroup = roleGroupRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, code));
+    public RoleGroupResponse updateRoleGroup(RoleGroupDTO roleGroupDTO, Long id) {
+        List<Function> functions = functionRepository.findAllById(roleGroupDTO.getFunctionIds());
+        RoleGroup existingRoleGroup = roleGroupRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.ROLE_GROUP_NOT_FOUND, id));
 
         existingRoleGroup.setRoleGroupName(roleGroupDTO.getRoleGroupName());
         existingRoleGroup.setDescription(roleGroupDTO.getDescription());
@@ -64,7 +63,7 @@ public class RoleGroupServiceImpl implements RoleGroupService {
     }
 
     @Override
-    public void deleteRoleGroup(UUID code) {
-        roleGroupRepository.deleteById(code);
+    public void deleteRoleGroup(Long id) {
+        roleGroupRepository.deleteById(id);
     }
 }

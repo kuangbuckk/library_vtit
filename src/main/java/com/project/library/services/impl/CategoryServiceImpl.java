@@ -30,10 +30,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse getCategoryById(UUID code) {
+    public CategoryResponse getCategoryById(Long id) {
         Category category = categoryRepository
-                .findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, code));
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, id));
         return CategoryResponse.fromCategory(category);
     }
 
@@ -47,18 +47,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse updateCategory(CategoryDTO categoryDTO, UUID code) {
-        Category existingCategory = categoryRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, code));
+    public CategoryResponse updateCategory(CategoryDTO categoryDTO, Long id) {
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, id));
         existingCategory.setCategoryName(categoryDTO.getCategoryName());
         categoryRepository.save(existingCategory);
         return CategoryResponse.fromCategory(existingCategory);
     }
 
     @Override
-    public void deleteCategory(UUID code) {
-        Category existingCategory = categoryRepository.findById(code)
-                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, code));
+    public void deleteCategory(Long id) {
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.CATEGORY_NOT_FOUND, id));
         categoryRepository.delete(existingCategory);
     }
 }

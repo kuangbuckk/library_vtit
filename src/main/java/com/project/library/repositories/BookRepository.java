@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book, UUID> {
+public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b JOIN FETCH b.categories c WHERE " +
-            "b.code = :#{#bookSearchDTO.code} OR " +
+            "b.id = :#{#bookSearchDTO.id} OR " +
             "b.title LIKE %:#{#bookSearchDTO.title}% OR " +
             "b.author LIKE %:#{#bookSearchDTO.author}% OR " +
             "b.createdAt >= :#{#bookSearchDTO.publishedAt} OR " +

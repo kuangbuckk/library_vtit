@@ -15,12 +15,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Category {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name ="category_name", nullable = false)
     private String categoryName;

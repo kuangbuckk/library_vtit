@@ -16,11 +16,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class BookResponse {
-    private UUID code;
+    private Long id;
     private String author;
     private String title;
     private int pageCount;
     private int amount;
+    private String language;
+    private String description;
 
     @JsonProperty("category_names")
     private List<String> categoryNames;
@@ -32,10 +34,12 @@ public class BookResponse {
     public static BookResponse fromBook(Book book) {
         List<String> categoryNames = book.getCategories().stream().map(Category::getCategoryName).toList();
         return BookResponse.builder()
-                .code(book.getCode())
+                .id(book.getId())
                 .author(book.getAuthor())
                 .title(book.getTitle())
                 .pageCount(book.getPageCount())
+                .language(book.getLanguage())
+                .description(book.getDescription())
                 .amount(book.getAmount())
                 .categoryNames(categoryNames)
                 .auditorResponse(AuditorResponse.builder()

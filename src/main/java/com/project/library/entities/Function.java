@@ -16,8 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Function {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "function_name", nullable = false, length = 60, unique = true)
     private String functionName;

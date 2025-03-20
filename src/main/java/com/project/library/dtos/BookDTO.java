@@ -31,6 +31,13 @@ public class BookDTO {
     @Min(value = 0, message = "Amount can't be less than 0")
     private int pageCount;
 
-    @JsonProperty("category_codes")
-    private List<String> categoryCodes;
+    @JsonProperty("language")
+    @NotBlank(message = "Language must be defined")
+    private String language;
+
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("category_ids")
+    private List<Long> categoryIds;
 }
