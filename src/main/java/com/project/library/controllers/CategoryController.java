@@ -1,6 +1,6 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.CategoryDTO;
 import com.project.library.responses.CategoryResponse;
 import com.project.library.responses.GenericResponse;
@@ -33,10 +33,10 @@ public class CategoryController {
         return ResponseEntity.ok(GenericResponse.success(categories));
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<GenericResponse> getCategory(@PathVariable UUID code) {
-        CategoryResponse existingCategory = categoryService.getCategoryById(code);
+    public ResponseEntity<GenericResponse> getCategory(@PathVariable Long id) {
+        CategoryResponse existingCategory = categoryService.getCategoryById(id);
         return ResponseEntity.ok(GenericResponse.success(existingCategory));
     }
 
@@ -53,30 +53,30 @@ public class CategoryController {
                 newCategory));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateCategory(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             @RequestBody @Valid CategoryDTO categoryDTO,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, code);
+        CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY),
                 updatedCategory));
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> deleteCategory(
-            @PathVariable String code,
+            @PathVariable Long id,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        categoryService.deleteCategory(UUID.fromString(code));
+        categoryService.deleteCategory(id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_CATEGORY_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY),
-                code));
+                id));
     }
 }

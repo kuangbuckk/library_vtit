@@ -1,6 +1,6 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.RoleGroupDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.RoleGroupResponse;
@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("${api.prefix}/role_groups")
 @AllArgsConstructor
@@ -28,9 +26,9 @@ public class RoleGroupController {
         return ResponseEntity.ok(GenericResponse.success(roleGroupService.getRoleGroups()));
     }
 
-    @GetMapping("/{code}")
-    public ResponseEntity<?> getRoleGroup(@PathVariable UUID code) {
-        RoleGroupResponse existingRoleGroup = roleGroupService.getRoleGroupByCode(code);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRoleGroup(@PathVariable Long id) {
+        RoleGroupResponse existingRoleGroup = roleGroupService.getRoleGroupByCode(id);
         return ResponseEntity.ok(GenericResponse.success(existingRoleGroup));
     }
 
@@ -47,14 +45,14 @@ public class RoleGroupController {
                 newRoleGroup));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateRoleGroup(
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, code);
+        RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY),
@@ -62,12 +60,12 @@ public class RoleGroupController {
         );
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRoleGroup(
-            @PathVariable UUID code
+            @PathVariable Long id
     ) {
-        roleGroupService.deleteRoleGroup(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        roleGroupService.deleteRoleGroup(id);
+        return ResponseEntity.ok(GenericResponse.success(id));
     }
 }

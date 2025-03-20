@@ -1,6 +1,6 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.CommentDTO;
 import com.project.library.responses.CommentResponse;
 import com.project.library.responses.GenericResponse;
@@ -12,8 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/comments")
@@ -28,9 +26,9 @@ public class CommentController {
         return ResponseEntity.ok(GenericResponse.success(commentService.getAllComment()));
     }
 
-    @GetMapping("/{code}")
-    public ResponseEntity<?> getCommentByCode(@PathVariable("code") UUID code) {
-        CommentResponse commentResponse = commentService.getCommentByCode(code);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCommentByCode(@PathVariable("id") Long id) {
+        CommentResponse commentResponse = commentService.getCommentById(id);
         return ResponseEntity.ok(GenericResponse.success(commentResponse));
     }
 
@@ -43,37 +41,37 @@ public class CommentController {
                 commentService.addComment(commentDTO)));
     }
 
-    @PutMapping("/update/{code}")
-    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#code)")
+    @PutMapping("/update/{id}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#id)")
     public ResponseEntity<?> updateComment(
-            @PathVariable("code") UUID code,
+            @PathVariable("id") Long id,
             @RequestBody @Valid CommentDTO commentDTO,
             HttpServletRequest request
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_COMMENT_SUCCESSFULLY),
-                commentService.updateComment(commentDTO, code))
+                commentService.updateComment(commentDTO, id))
         );
     }
 
-    @DeleteMapping("/{code}")
-    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#code)")
-    public ResponseEntity<?> deleteComment(@PathVariable("code") UUID code, HttpServletRequest request) {
-        commentService.deleteComment(code);
+    @DeleteMapping("/{id}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#id)")
+    public ResponseEntity<?> deleteComment(@PathVariable("id") Long id, HttpServletRequest request) {
+        commentService.deleteComment(id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_COMMENT_SUCCESSFULLY),
-                code));
+                id));
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
-    public ResponseEntity<?> destroyComment(@PathVariable("code") UUID code) {
-        commentService.destroyComment(code);
+    public ResponseEntity<?> destroyComment(@PathVariable("id") Long id) {
+        commentService.destroyComment(id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_BOOK_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
-                code));
+                id));
     }
 }

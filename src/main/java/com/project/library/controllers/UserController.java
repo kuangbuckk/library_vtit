@@ -1,6 +1,6 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
 import com.project.library.dtos.search.UserSearchDTO;
@@ -18,8 +18,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -40,13 +38,13 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
     }
     
-//    @GetMapping("/{code}")
+//    @GetMapping("/{id}")
 //    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
 //    public ResponseEntity<GenericResponse> getUserByCode(
-//            @PathVariable UUID code,
+//            @PathVariable Long id,
 //            HttpServletRequest httpServletRequest
 //    ) {
-//        UserResponse userResponse = userService.getUserByCode(code);
+//        UserResponse userResponse = userService.getUserByCode(id);
 //        return ResponseEntity.ok(GenericResponse.success(userResponse));
 //    }
 
@@ -120,35 +118,35 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success("Logout successfully"));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateUser(
             @RequestBody @Valid UserDTO userDTO,
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
 
-        UserResponse userResponse = userService.updateUser(userDTO, code);
+        UserResponse userResponse = userService.updateUser(userDTO, id);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> deleteUser(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        userService.deleteUser(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        userService.deleteUser(id);
+        return ResponseEntity.ok(GenericResponse.success(id));
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> destroyUser(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        userService.destroyUser(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        userService.destroyUser(id);
+        return ResponseEntity.ok(GenericResponse.success(id));
     }
 }
