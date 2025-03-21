@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,35 +35,43 @@ public class CommentController {
 
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#request)")
-    public ResponseEntity<?> addComment(@RequestBody @Valid CommentDTO commentDTO, HttpServletRequest request) {
+    public ResponseEntity<?> addComment(
+            @RequestBody @Valid CommentDTO commentDTO,
+            Authentication authentication,
+            HttpServletRequest request) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.INSERT_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_COMMENT_SUCCESSFULLY),
-                commentService.addComment(commentDTO)));
+                commentService.addComment(authentication, commentDTO)));
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#id)")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request)")
     public ResponseEntity<?> updateComment(
             @PathVariable("id") Long id,
             @RequestBody @Valid CommentDTO commentDTO,
+            Authentication authentication,
             HttpServletRequest request
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_COMMENT_SUCCESSFULLY),
-                commentService.updateComment(commentDTO, id))
+                commentService.updateComment(authentication, commentDTO, id))
         );
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("@customSecurityExpression.fileRole(#request) AND @customSecurityExpression.isCommentOwner(#id)")
-    public ResponseEntity<?> deleteComment(@PathVariable("id") Long id, HttpServletRequest request) {
-        commentService.deleteComment(id);
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("@customSecurityExpression.fileRole(#request)")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable("id") Long id,
+            Authentication authentication,
+            HttpServletRequest request
+    ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_COMMENT_SUCCESSFULLY),
-                id));
+                commentService.deleteComment(authentication, id))
+        );
     }
 
     @DeleteMapping("/destroy/{id}")

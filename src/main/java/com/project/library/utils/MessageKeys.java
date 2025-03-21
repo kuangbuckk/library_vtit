@@ -7,6 +7,7 @@ public class MessageKeys {
     public static final String PASSWORD_NOT_MATCH =  "user.register.password_not_match";
     public static final String USER_IS_LOCKED = "user.login.user_is_locked";
 
+    public static final String GET_CATEGORY_SUCCESSFULLY = "category.view.success";
     public static final String INSERT_CATEGORY_SUCCESSFULLY = "category.create.success";
     public static final String UPDATE_CATEGORY_SUCCESSFULLY = "category.update.success";
     public static final String DELETE_CATEGORY_SUCCESSFULLY = "category.delete.success";
@@ -27,6 +28,7 @@ public class MessageKeys {
     public static final String BOOK_NOT_FOUND = "book.find.error";
     public static final String BOOK_OUT_OF_STOCK = "book.out_of_stock";
 
+    public static final String GET_POST_SUCCESSFULLY = "post.view.success";
     public static final String INSERT_POST_SUCCESSFULLY = "post.create.success";
     public static final String UPDATE_POST_SUCCESSFULLY = "post.update.success";
     public static final String DELETE_POST_SUCCESSFULLY = "post.delete.success";
@@ -36,7 +38,9 @@ public class MessageKeys {
     public static final String DELETE_POST_FAILED = "post.delete.error";
     public static final String DESTROY_POST_FAILED = "post.destroy.error";
     public static final String POST_NOT_FOUND = "post.find.error";
+    public static final String POST_INVALID_OWNER = "post.invalid.owner";
 
+    public static final String GET_COMMENT_SUCCESSFULLY = "comment.view.success";
     public static final String INSERT_COMMENT_SUCCESSFULLY = "comment.create.success";
     public static final String UPDATE_COMMENT_SUCCESSFULLY = "comment.update.success";
     public static final String DELETE_COMMENT_SUCCESSFULLY = "comment.delete.success";
@@ -46,7 +50,9 @@ public class MessageKeys {
     public static final String DELETE_COMMENT_FAILED = "comment.delete.error";
     public static final String DESTROY_COMMENT_FAILED = "comment.delete.error";
     public static final String COMMENT_NOT_FOUND = "comment.find.error";
+    public static final String COMMENT_INVALID_OWNER = "comment.invalid.owner";
 
+    public static final String GET_USER_SUCCESSFULLY = "user.view.success";
     public static final String INSERT_USER_SUCCESSFULLY = "user.create.success";
     public static final String UPDATE_USER_SUCCESSFULLY = "user.update.success";
     public static final String DELETE_USER_SUCCESSFULLY = "user.delete.success";
@@ -73,6 +79,7 @@ public class MessageKeys {
     public static final String DELETE_FUNCTION_FAILED = "function.delete.error";
     public static final String FUNCTION_NOT_FOUND = "function.find.error";
 
+    public static final String GET_BORROW_SUCCESSFULLY = "borrow.view.success";
     public static final String INSERT_BORROW_SUCCESSFULLY = "borrow.create.success";
     public static final String UPDATE_BORROW_SUCCESSFULLY = "borrow.update.success";
     public static final String DELETE_BORROW_SUCCESSFULLY = "borrow.delete.success";
@@ -87,5 +94,4 @@ public class MessageKeys {
     public static final String ROLE_DOES_NOT_EXISTS = "user.login.role_not_exist";
 
     public static final String ILLEGAL_INPUT_ARGUMENT = "illegal.input.argument";
-
 }

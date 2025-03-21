@@ -6,6 +6,7 @@ import com.project.library.entities.Book;
 import com.project.library.entities.Post;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
+import com.project.library.exceptions.InvalidOwnerException;
 import com.project.library.repositories.BookRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
@@ -17,12 +18,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -38,7 +39,7 @@ public class PostServiceImpl implements PostService {
         int totalPages = posts.getTotalPages();
         List<PostResponse> postResponseList = posts.getContent()
                 .stream()
-                .map(post -> PostResponse.fromPost(post))
+                .map(PostResponse::fromPost)
                 .toList();
         return PostPageResponse.builder()
                 .postResponseList(postResponseList)
@@ -55,19 +56,20 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostResponse addPost(PostDTO postDTO) {
+    public PostResponse addPost(Authentication authentication, PostDTO postDTO) {
         Book existingBook = bookRepository
                 .findById(postDTO.getBookId())
                 .orElseThrow(() ->
                         new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, postDTO.getBookId()));
-        User user = userRepository.findById(postDTO.getUserId())
-                .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, postDTO.getUserId()));
+//        User user = userRepository.findById(postDTO.getUserId())
+//                .orElseThrow(() ->
+//                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, postDTO.getUserId()));
+        User existingUser = this.getCurrentAuthenticatedUser(authentication);
         Post newPost = Post.builder()
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
                 .book(existingBook)
-                .user(user)
+                .user(existingUser)
                 .build();
         postRepository.save(newPost);
         return PostResponse.fromPost(newPost);
@@ -75,27 +77,33 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostResponse updatePost(PostDTO postDTO, Long id) {
-
+    public PostResponse updatePost(Authentication authentication, PostDTO postDTO, Long id) {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
-        if (SecurityContextHolder.getContext().getAuthentication().getCredentials() != existingPost.getCreatedBy().getUsername()) {
-
+        if (isCurrentOwner(authentication, existingPost)) {
+            existingPost.setTitle(postDTO.getTitle());
+            existingPost.setContent(postDTO.getContent());
+            postRepository.save(existingPost);
+            return PostResponse.fromPost(existingPost);
         }
-        existingPost.setTitle(postDTO.getTitle());
-        existingPost.setContent(postDTO.getContent());
-        postRepository.save(existingPost);
-        return PostResponse.fromPost(existingPost);
+        else {
+            throw new InvalidOwnerException(MessageKeys.POST_INVALID_OWNER);
+        }
     }
 
     @Override
     @Transactional
-    public PostResponse deletePost(Long id) {
+    public PostResponse deletePost(Authentication authentication, Long id) {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
-        existingPost.setIsDeleted(true);
-        postRepository.save(existingPost);
-        return PostResponse.fromPost(existingPost);
+        if (isCurrentOwner(authentication, existingPost)) {
+            existingPost.setIsDeleted(true);
+            postRepository.save(existingPost);
+            return PostResponse.fromPost(existingPost);
+        }
+        else {
+            throw new InvalidOwnerException(MessageKeys.POST_INVALID_OWNER);
+        }
     }
 
     @Override
@@ -104,5 +112,15 @@ public class PostServiceImpl implements PostService {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.POST_NOT_FOUND, id));
         postRepository.delete(existingPost);
+    }
+
+    private User getCurrentAuthenticatedUser(Authentication authentication){
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.USER_NOT_FOUND));
+    }
+
+    private boolean isCurrentOwner(Authentication authentication, Post existingPost) {
+        return Objects.equals(authentication.getName(), existingPost.getCreatedBy().getUsername());
     }
 }

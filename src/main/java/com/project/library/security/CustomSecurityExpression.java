@@ -51,36 +51,36 @@ public class CustomSecurityExpression {
      * @return boolean
      */
 
-    public boolean isPostOwner(Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            return false;
-        }
-        PostResponse existingPost = postService.getPostById(postId);
-        if (isSuperiorAuthorities(authentication)) {
-            return true;
-        }
-        return existingPost.getAuditor().getCreatedBy()
-                .equals(((User) authentication.getPrincipal()).getUsername());
-    }
-
-    public boolean isCommentOwner(Long commentId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            return false;
-        }
-        if (isSuperiorAuthorities(authentication)) {
-            return true;
-        }
-        return commentService.getCommentById(commentId).getAuditor().getCreatedBy()
-                .equals(((User) authentication.getPrincipal()).getUsername());
-    }
-
-    private boolean isSuperiorAuthorities(Authentication authentication){
-        return authentication.getAuthorities().stream().anyMatch(grantedAuthority ->
-                grantedAuthority.getAuthority().equals("ROLE_ADMIN")
-                        || grantedAuthority.getAuthority().equals("ROLE_MANAGER")
-        );
-    }
+//    public boolean isPostOwner(Long postId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication instanceof AnonymousAuthenticationToken) {
+//            return false;
+//        }
+//        PostResponse existingPost = postService.getPostById(postId);
+//        if (isSuperiorAuthorities(authentication)) {
+//            return true;
+//        }
+//        return existingPost.getAuditor().getCreatedBy()
+//                .equals(((User) authentication.getPrincipal()).getUsername());
+//    }
+//
+//    public boolean isCommentOwner(Long commentId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication instanceof AnonymousAuthenticationToken) {
+//            return false;
+//        }
+//        if (isSuperiorAuthorities(authentication)) {
+//            return true;
+//        }
+//        return commentService.getCommentById(commentId).getAuditor().getCreatedBy()
+//                .equals(((User) authentication.getPrincipal()).getUsername());
+//    }
+//
+//    private boolean isSuperiorAuthorities(Authentication authentication){
+//        return authentication.getAuthorities().stream().anyMatch(grantedAuthority ->
+//                grantedAuthority.getAuthority().equals("ROLE_ADMIN")
+//                        || grantedAuthority.getAuthority().equals("ROLE_MANAGER")
+//        );
+//    }
 
 }

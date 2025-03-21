@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
                 .body(GenericResponse.error(MessageKeys.ILLEGAL_INPUT_ARGUMENT, errors.toString()));
     }
 
+    //BindingResult exception
     @ExceptionHandler(BindException.class)
     public ResponseEntity<GenericResponse<Object>> handleBindException(final BindException e) {
         String errors = e.getBindingResult().getFieldErrors().stream()
@@ -66,9 +67,15 @@ public class GlobalExceptionHandler {
                 .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
     }
 
+    @ExceptionHandler(InvalidOwnerException.class)
+    public ResponseEntity<GenericResponse<Object>> handleInvalidOwnerException(final InvalidOwnerException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GenericResponse<Object>> exception(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+                .body(GenericResponse.error(e.getMessage(), e.getMessage()));
     }
 }

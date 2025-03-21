@@ -15,4 +15,8 @@ public class DataNotFoundException extends RuntimeException {
         super(message);
         this.code = code;
     }
+
+    public DataNotFoundException(String message) {
+        super(message);
+    }
 }

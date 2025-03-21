@@ -26,8 +26,4 @@ public class PostDTO {
     @JsonProperty(value = "book_id")
     @NotNull(message = "Post must belong to a book")
     private Long bookId;
-
-    @JsonProperty(value = "user_id")
-    @NotNull(message = "Post must belong to an user")
-    private Long userId;
 }

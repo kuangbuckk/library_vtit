@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BorrowDTO {
-    @JsonProperty(value = "user_id")
-    @NotBlank(message = "User id must not blank")
-    private Long userId;
+//    @JsonProperty(value = "user_id")
+//    @NotBlank(message = "User id must not blank")
+//    private Long userId;
 
     @JsonProperty(value = "book_id")
     @NotBlank(message = "User id must not blank")

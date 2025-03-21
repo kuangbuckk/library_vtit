@@ -5,6 +5,7 @@ import com.project.library.entities.Comment;
 import com.project.library.entities.Post;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
+import com.project.library.exceptions.InvalidOwnerException;
 import com.project.library.repositories.CommentRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
@@ -12,10 +13,13 @@ import com.project.library.responses.CommentResponse;
 import com.project.library.services.CommentService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -44,10 +48,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponse addComment(CommentDTO commentDTO) {
-        User existingUser = userRepository.findById(commentDTO.getUserCode())
-                .orElseThrow(()->
-                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, commentDTO.getUserCode()));
+    public CommentResponse addComment(Authentication authentication, CommentDTO commentDTO) {
+        User existingUser = this.getCurrentAuthenticatedUser(authentication);
         Post existingPost = postRepository.findById(commentDTO.getPostCode())
                 .orElseThrow(() ->
                         new DataNotFoundException(MessageKeys.POST_NOT_FOUND, commentDTO.getPostCode()));
@@ -62,21 +64,30 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponse updateComment(CommentDTO commentDTO, Long id) {
+    public CommentResponse updateComment(Authentication authentication, CommentDTO commentDTO, Long id) {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
-        existingComment.setContent(commentDTO.getContent());
-        return CommentResponse.fromComment(existingComment);
+        if (isCurrentOwner(authentication, existingComment)) {
+            existingComment.setContent(commentDTO.getContent());
+            return CommentResponse.fromComment(existingComment);
+        } else {
+            throw new InvalidOwnerException(MessageKeys.COMMENT_INVALID_OWNER);
+        }
+
     }
 
     @Override
     @Transactional
-    public CommentResponse deleteComment(Long id) {
+    public CommentResponse deleteComment(Authentication authentication, Long id) {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
-        existingComment.setIsDeleted(true);
-        commentRepository.save(existingComment);
-        return CommentResponse.fromComment(existingComment);
+        if (isCurrentOwner(authentication, existingComment)) {
+            existingComment.setIsDeleted(true);
+            commentRepository.save(existingComment);
+            return CommentResponse.fromComment(existingComment);
+        } else {
+            throw new InvalidOwnerException(MessageKeys.COMMENT_INVALID_OWNER);
+        }
     }
 
     @Override
@@ -85,5 +96,15 @@ public class CommentServiceImpl implements CommentService {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         commentRepository.delete(existingComment);
+    }
+
+    private User getCurrentAuthenticatedUser(Authentication authentication){
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException(MessageKeys.USER_NOT_FOUND));
+    }
+
+    private boolean isCurrentOwner(Authentication authentication, Comment existingComment) {
+        return Objects.equals(authentication.getName(), existingComment.getCreatedBy().getUsername());
     }
 }
