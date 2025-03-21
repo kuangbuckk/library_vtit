@@ -1,11 +1,10 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.FunctionDTO;
-import com.project.library.entities.Function;
 import com.project.library.responses.FunctionResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IFunctionService;
+import com.project.library.services.FunctionService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -14,18 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/functions")
 @AllArgsConstructor
 public class FunctionController {
-    private final IFunctionService functionService;
+    private final FunctionService functionService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
@@ -33,9 +27,9 @@ public class FunctionController {
         return ResponseEntity.ok(GenericResponse.success(functionService.getAllFunctions()));
     }
 
-    @GetMapping("/{code}")
-    public ResponseEntity<?> getFunction(@PathVariable UUID code) {
-        FunctionResponse existingFunction = functionService.getFunctionByCode(code);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getFunction(@PathVariable Long id) {
+        FunctionResponse existingFunction = functionService.getFunctionByCode(id);
         return ResponseEntity.ok(GenericResponse.success(existingFunction));
     }
 
@@ -52,27 +46,27 @@ public class FunctionController {
                 newFunction));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> updateFunction(
             @RequestBody @Valid FunctionDTO functionDTO,
-            @PathVariable UUID code,
+            @PathVariable Long id,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        FunctionResponse existingFunction = functionService.getFunctionByCode(code);
+        FunctionResponse existingFunction = functionService.getFunctionByCode(id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY),
                 existingFunction));
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> deleteFunction(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        functionService.deleteFunction(code);
+        functionService.deleteFunction(id);
         return ResponseEntity.ok("Deleted function");
     }
 }

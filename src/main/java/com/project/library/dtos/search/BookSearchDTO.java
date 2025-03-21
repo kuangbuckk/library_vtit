@@ -1,4 +1,4 @@
-package com.project.library.dtos;
+package com.project.library.dtos.search;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -12,10 +12,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookSearchDTO {
-    private UUID code;
+    private Long id;
     private String author;
     private String title;
     private int amount;
+    private String language;
+    private String description;
     @JsonProperty("published_at")
     private LocalDateTime publishedAt;
 

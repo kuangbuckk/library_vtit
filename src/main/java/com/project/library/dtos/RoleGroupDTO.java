@@ -23,6 +23,6 @@ public class RoleGroupDTO {
     @Length(max = 50)
     private String description;
 
-    @JsonProperty(value = "function_codes")
-    private List<UUID> functionCodes;
+    @JsonProperty(value = "function_ids")
+    private List<Long> functionIds;
 }

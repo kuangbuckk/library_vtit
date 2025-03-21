@@ -1,31 +1,24 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.PostDTO;
-import com.project.library.dtos.PostSearchDTO;
+import com.project.library.dtos.search.PostSearchDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.PostPageResponse;
-import com.project.library.responses.PostResponse;
-import com.project.library.services.interfaces.IPostService;
+import com.project.library.services.PostService;
 import com.project.library.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("${api.prefix}/posts")
 public class PostController {
-    private final IPostService postService;
+    private final PostService postService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
@@ -38,9 +31,9 @@ public class PostController {
         return ResponseEntity.ok(GenericResponse.success(postPageResponse));
     }
 
-//    @GetMapping("/{code}")
-//    public ResponseEntity<GenericResponse> getPostByCode(@PathVariable("code") UUID code) {
-//        PostResponse postResponse = postService.getPostByCode(code);
+//    @GetMapping("/{id}")
+//    public ResponseEntity<GenericResponse> getPostByCode(@PathVariable("id") Long id) {
+//        PostResponse postResponse = postService.getPostByCode(id);
 //        return ResponseEntity.ok(GenericResponse.success(postResponse));
 //    }
 
@@ -56,39 +49,39 @@ public class PostController {
                 postService.addPost(postDTO)));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
-            "AND @customSecurityExpression.isPostOwner(#code)")
+            "AND @customSecurityExpression.isPostOwner(#id)")
     public ResponseEntity<GenericResponse> updatePost(
             @RequestBody @Valid PostDTO postDTO,
-            @PathVariable("code") UUID code,
+            @PathVariable("id") Long id,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.UPDATE_POST_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_POST_SUCCESSFULLY),
-                postService.updatePost(postDTO, code)));
+                postService.updatePost(postDTO, id)));
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
-            "AND @customSecurityExpression.isPostOwner(#code)")
+            "AND @customSecurityExpression.isPostOwner(#id)")
     public ResponseEntity<GenericResponse> deletePost(
-            @PathVariable("code") UUID code,
+            @PathVariable("id") Long id,
             HttpServletRequest httpServletRequest
     ) {
-        postService.deletePost(code);
-        return ResponseEntity.ok().body(GenericResponse.success(code));
+        postService.deletePost(id);
+        return ResponseEntity.ok().body(GenericResponse.success(id));
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest) " +
-            "AND @customSecurityExpression.isPostOwner(#code)")
-    public ResponseEntity<GenericResponse> destroyPost(@PathVariable("code") UUID code) {
-        postService.destroyPost(code);
+            "AND @customSecurityExpression.isPostOwner(#id)")
+    public ResponseEntity<GenericResponse> destroyPost(@PathVariable("id") Long id) {
+        postService.destroyPost(id);
         return ResponseEntity.ok(GenericResponse.success(
                 MessageKeys.DELETE_POST_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_POST_SUCCESSFULLY),
-                code));
+                id));
     }
 }

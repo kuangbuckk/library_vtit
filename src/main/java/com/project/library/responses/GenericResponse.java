@@ -34,4 +34,12 @@ public class GenericResponse<T> {
     public static <T> GenericResponse<T> error(String code, String message) {
         return GenericResponse.<T>builder().code(code).message(message).data(null).build();
     }
+
+    public static <T> GenericResponse<byte[]> download(byte[] file) {
+        return GenericResponse.<byte[]>builder()
+                .code("200")
+                .message("Success")
+                .data(file)
+                .build();
+    }
 }

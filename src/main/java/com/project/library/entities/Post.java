@@ -17,13 +17,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Post extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
-
     @Column(name = "title", length = 50)
     private String title;
 
@@ -31,11 +25,11 @@ public class Post extends BaseEntity {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "book_code", nullable = false)
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "user_code", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "post")

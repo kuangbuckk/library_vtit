@@ -19,7 +19,7 @@ import java.util.UUID;
 @Setter
 @Builder
 public class UserResponse {
-    private UUID code;
+    private Long id;
 
     @JsonProperty(value = "user_name")
     private String username;
@@ -53,7 +53,7 @@ public class UserResponse {
                     .toList();
         }
         return UserResponse.builder()
-                .code(user.getCode())
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())

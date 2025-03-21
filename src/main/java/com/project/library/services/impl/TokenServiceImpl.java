@@ -1,30 +1,24 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
-import com.project.library.components.JwtTokenUtils;
+import com.project.library.utils.JwtTokenUtils;
 import com.project.library.entities.Token;
 import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.repositories.TokenRepository;
-import com.project.library.repositories.UserRepository;
 import com.project.library.responses.LoginResponse;
-import com.project.library.services.interfaces.ITokenService;
-import com.project.library.utils.MessageKeys;
+import com.project.library.services.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class TokenServiceImpl implements ITokenService {
+public class TokenServiceImpl implements TokenService {
 
     @Value("${jwt.expiration}")
     private Long accessTokenExpiration;
@@ -65,7 +59,7 @@ public class TokenServiceImpl implements ITokenService {
     public LoginResponse refreshToken(String refreshToken, User existingUser) throws Exception {
         Optional<Token> tokenOptional = tokenRepository.findByRefreshToken(refreshToken);
         if (tokenOptional.isEmpty()) {
-            throw new DataNotFoundException("Token not found for user with code ", existingUser.getCode());
+            throw new DataNotFoundException("Token not found for user with code ", existingUser.getId());
         }
         Token existingToken = tokenOptional.get();
         if (!jwtTokenUtils.validateToken(existingToken.getRefreshToken(), existingUser)) {

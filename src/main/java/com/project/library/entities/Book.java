@@ -14,13 +14,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class Book extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
-
     @Column(name ="title", nullable = false)
     private String title;
 
@@ -31,6 +25,12 @@ public class Book extends BaseEntity {
     @Min(value = 0)
     private Integer pageCount;
 
+    @Column(name = "language", nullable = false)
+    private String language;
+
+    @Column(name = "description", length = 2500)
+    private String description;
+
     @Column(name ="amount", nullable = false)
     @Min(value = 0)
     private Integer amount;
@@ -38,12 +38,19 @@ public class Book extends BaseEntity {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "books_categories",
-            joinColumns = @JoinColumn(name = "book_code"),
-            inverseJoinColumns = @JoinColumn(name = "category_code")
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> categories;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
+
+    public String getCategoryNames() {
+        return this.categories.stream()
+                .map(Category::getCategoryName)
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("No Category");
+    }
 
 }

@@ -7,8 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,10 +24,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
-
     @Column(name = "username", length = 30, nullable = false, unique = true)
     private String username;
 
@@ -56,8 +54,8 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_role_groups",
-            joinColumns = @JoinColumn(name = "role_group_code"),
-            inverseJoinColumns = @JoinColumn(name = "user_code")
+            joinColumns = @JoinColumn(name = "role_group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<RoleGroup> roleGroups;
 
@@ -93,5 +91,16 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getDateOfBirthFormatted() {
+        return this.dateOfBirth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    public String getRoles(){
+        return this.roleGroups.stream()
+                .map(RoleGroup::getRoleGroupName)
+                .reduce((a, b) -> a + ", " + b)
+                .get();
     }
 }

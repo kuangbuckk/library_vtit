@@ -1,6 +1,6 @@
 package com.project.library.repositories;
 
-import com.project.library.dtos.BorrowSearchDTO;
+import com.project.library.dtos.search.BorrowSearchDTO;
 import com.project.library.entities.Borrow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface BorrowRepository extends JpaRepository<Borrow, UUID> {
+public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     @Query("SELECT br FROM Borrow br WHERE " +
-            "br.code = :#{#borrowSearchDTO.code} OR " +
-            "br.user.code = :#{#borrowSearchDTO.userCode} OR " +
-            "br.book.code = :#{#borrowSearchDTO.bookCode} OR " +
+            "br.id = :#{#borrowSearchDTO.code} OR " +
+            "br.user.id = :#{#borrowSearchDTO.userCode} OR " +
+            "br.book.id = :#{#borrowSearchDTO.bookCode} OR " +
             "br.borrowAt = :#{#borrowSearchDTO.borrowAt} OR " +
             "br.returnAt = :#{#borrowSearchDTO.returnAt} OR " +
             "br.status = :#{#borrowSearchDTO.status}")

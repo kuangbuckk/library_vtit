@@ -1,6 +1,6 @@
 package com.project.library.repositories;
 
-import com.project.library.dtos.UserSearchDTO;
+import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +13,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE " +
-            "u.code = :#{#userSearchDTO.code} OR " +
+            "u.id = :#{#userSearchDTO.id} OR " +
             "u.username LIKE %:#{#userSearchDTO.username}% OR " +
             "u.email LIKE %:#{#userSearchDTO.email}% OR " +
             "u.fullName LIKE %:#{#userSearchDTO.fullName}% OR " +

@@ -1,46 +1,51 @@
 package com.project.library.controllers;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.BookDTO;
-import com.project.library.dtos.BookSearchDTO;
-import com.project.library.entities.Book;
+import com.project.library.dtos.search.BookSearchDTO;
 import com.project.library.responses.BookPageResponse;
 import com.project.library.responses.BookResponse;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IBookService;
+import com.project.library.services.BookService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/books")
 @AllArgsConstructor
 public class BookController {
-    private final IBookService bookService;
+    //tuỳ chọn bean service nào nhưng chỉ dùng dc khi khai báo constructor manually
+//    public BookController(@Qualifier("bookServiceImpl") BookService bookService) {
+//        this.bookService = bookService;
+//    }
+
+    private final BookService bookService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
-    public ResponseEntity<GenericResponse<BookPageResponse>> getBooks(
+    public ResponseEntity<?> getBooks(
             @RequestParam(defaultValue = "0", name = "page_number") int pageNumber,
             @RequestParam(defaultValue = "5", name = "size") int size,
-//            , @RequestParam(defaultValue = "", name = "author") String author,
             @RequestBody BookSearchDTO bookSearchDTO
     ) {
         BookPageResponse bookPageResponse = bookService.getAllBooks(pageNumber, size, bookSearchDTO);
-        return ResponseEntity.ok(GenericResponse.success(bookPageResponse));
+        return ResponseUtil.success(MessageKeys.GET_BOOK_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_BOOK_SUCCESSFULLY),
+                bookPageResponse);
     }
 
 //    @GetMapping("/{code}")
@@ -51,6 +56,13 @@ public class BookController {
 //
 //    }
 
+    @GetMapping("/excel-report")
+    public ResponseEntity<?> downloadExcel() {
+        byte[] excelFileData = bookService.exportBookExcelReport();
+        return ResponseUtil.download("book_report_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", excelFileData);
+    }
+
     @PostMapping("/create")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<?> createBook(
@@ -58,44 +70,47 @@ public class BookController {
             HttpServletRequest httpServletRequest
     ) {
         BookResponse newBookResponse = bookService.addBook(bookDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(GenericResponse.success(
-                        MessageKeys.INSERT_BOOK_SUCCESSFULLY,
-                        localizationUtils.getLocalizedMessage(MessageKeys.INSERT_BOOK_SUCCESSFULLY),
-                        newBookResponse));
+        return ResponseUtil.success(
+                MessageKeys.INSERT_BOOK_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.INSERT_BOOK_SUCCESSFULLY),
+                newBookResponse
+        );
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-    public ResponseEntity<GenericResponse> updateBook(
+    public ResponseEntity<?> updateBook(
             @RequestBody @Valid BookDTO bookDTO,
-            @PathVariable String code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        BookResponse updatedBook = bookService.updateBook(bookDTO, UUID.fromString(code));
-        return ResponseEntity.ok(GenericResponse.success(
+        BookResponse updatedBook = bookService.updateBook(bookDTO, id);
+        return ResponseUtil.success(
                 MessageKeys.UPDATE_BOOK_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_BOOK_SUCCESSFULLY),
-                updatedBook));
+                updatedBook
+        );
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-    public ResponseEntity<?> deleteBook(@PathVariable String code, HttpServletRequest httpServletRequest) {
-        bookService.deleteBook(UUID.fromString(code));
-        return ResponseEntity.ok(GenericResponse.success(
+    public ResponseEntity<?> deleteBook(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        bookService.deleteBook(id);
+        return ResponseUtil.success(
                 MessageKeys.DELETE_BOOK_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
-                code));
+                id
+        );
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
-    public ResponseEntity<?> destroyBook(@PathVariable String code, HttpServletRequest httpServletRequest) {
-        bookService.destroyBook(UUID.fromString(code));
-        return ResponseEntity.ok(GenericResponse.success(
-                MessageKeys.DELETE_BOOK_SUCCESSFULLY,
-                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
-                code));
+    public ResponseEntity<?> destroyBook(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        bookService.destroyBook(id);
+        return  ResponseUtil.success(
+                MessageKeys.DESTROY_BOOK_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DESTROY_BOOK_SUCCESSFULLY),
+                id
+        );
     }
 }

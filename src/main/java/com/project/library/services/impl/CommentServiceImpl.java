@@ -1,4 +1,4 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
 import com.project.library.dtos.CommentDTO;
 import com.project.library.entities.Comment;
@@ -9,7 +9,7 @@ import com.project.library.repositories.CommentRepository;
 import com.project.library.repositories.PostRepository;
 import com.project.library.repositories.UserRepository;
 import com.project.library.responses.CommentResponse;
-import com.project.library.services.interfaces.ICommentService;
+import com.project.library.services.CommentService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class CommentServiceImpl implements ICommentService {
+public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -35,10 +35,10 @@ public class CommentServiceImpl implements ICommentService {
     }
 
     @Override
-    public CommentResponse getCommentByCode(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
+    public CommentResponse getCommentById(Long id) {
+        Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()->
-                        new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+                        new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         return CommentResponse.fromComment(existingComment);
     }
 
@@ -62,18 +62,18 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     @Transactional
-    public CommentResponse updateComment(CommentDTO commentDTO, UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public CommentResponse updateComment(CommentDTO commentDTO, Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         existingComment.setContent(commentDTO.getContent());
         return CommentResponse.fromComment(existingComment);
     }
 
     @Override
     @Transactional
-    public CommentResponse deleteComment(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public CommentResponse deleteComment(Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         existingComment.setIsDeleted(true);
         commentRepository.save(existingComment);
         return CommentResponse.fromComment(existingComment);
@@ -81,9 +81,9 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     @Transactional
-    public void destroyComment(UUID code) {
-        Comment existingComment = commentRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, code));
+    public void destroyComment(Long id) {
+        Comment existingComment = commentRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         commentRepository.delete(existingComment);
     }
 }

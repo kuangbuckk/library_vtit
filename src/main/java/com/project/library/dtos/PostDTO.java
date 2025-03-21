@@ -23,11 +23,11 @@ public class PostDTO {
     @Length(min = 5, max = 255)
     private String content;
 
-    @JsonProperty(value = "book_code")
+    @JsonProperty(value = "book_id")
     @NotNull(message = "Post must belong to a book")
-    private UUID bookCode;
+    private Long bookId;
 
-    @JsonProperty(value = "user_code")
+    @JsonProperty(value = "user_id")
     @NotNull(message = "Post must belong to an user")
-    private UUID userCode;
+    private Long userId;
 }

@@ -14,21 +14,21 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CommentResponse {
-    private UUID code;
+    private Long id;
     @JsonProperty(value = "content")
     private String content;
 
-    @JsonProperty(value = "post_code")
-    private UUID postCode;
+    @JsonProperty(value = "post_id")
+    private Long postId;
 
     @JsonProperty(value = "auditor")
     private AuditorResponse auditor;
 
     public static CommentResponse fromComment(Comment comment) {
         return CommentResponse.builder()
-                .code(comment.getCode())
+                .id(comment.getId())
                 .content(comment.getContent())
-                .postCode(comment.getPost().getCode())
+                .postId(comment.getPost().getId())
                 .auditor(AuditorResponse.builder()
                         .createdBy(comment.getCreatedBy().getUsername())
                         .updatedBy(comment.getUpdatedBy().getUsername())

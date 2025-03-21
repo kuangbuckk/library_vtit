@@ -1,8 +1,8 @@
-package com.project.library.services;
+package com.project.library.services.impl;
 
-import com.project.library.components.JwtTokenUtils;
+import com.project.library.utils.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
-import com.project.library.dtos.UserSearchDTO;
+import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.entities.RoleGroup;
 import com.project.library.entities.User;
 import com.project.library.events.UserRegisterEvent;
@@ -12,32 +12,35 @@ import com.project.library.repositories.UserRepository;
 import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
-import com.project.library.services.interfaces.ITokenService;
-import com.project.library.services.interfaces.IUserService;
+import com.project.library.services.TokenService;
+import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleGroupRepository roleGroupRepository;
-    private final ITokenService tokenService;
+    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final JwtTokenUtils jwtTokenUtils;
@@ -58,19 +61,19 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserResponse getUserByCode(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse getUserByCode(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         return UserResponse.fromUser(existingUser);
     }
 
     @Override
     @Transactional
     public UserResponse createUser(UserDTO userDTO) {
-        if (userDTO.getRoleGroupCodes().isEmpty()) {
+        if (userDTO.getRoleGroupIds().isEmpty()) {
             throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
         }
-        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupCodes());
+        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupIds());
         applicationEventPublisher.publishEvent(new UserRegisterEvent(userDTO.getUsername()));
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
@@ -89,9 +92,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(UserDTO User, UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse updateUser(UserDTO User, Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         existingUser.setFullName(User.getFullName());
         existingUser.setUsername(User.getUsername());
         existingUser.setEmail(User.getEmail());
@@ -104,9 +107,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public UserResponse deleteUser(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public UserResponse deleteUser(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         existingUser.setIsDeleted(true);
         existingUser.setIsActive(false);
         userRepository.save(existingUser);
@@ -115,9 +118,9 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void destroyUser(UUID code) {
-        User existingUser = userRepository.findById(code)
-                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, code));
+    public void destroyUser(Long id) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
         userRepository.delete(existingUser);
     }
 
@@ -162,5 +165,22 @@ public class UserServiceImpl implements IUserService {
     public void logout(String refreshToken) {
 //        String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
         tokenService.invalidateRefreshToken(refreshToken);
+    }
+
+    @Override
+    public byte[] exportUserExcelData() {
+        try(InputStream is = new ClassPathResource("templates/user-template.xlsx").getInputStream()){
+            List<User> users = userRepository.findAll();
+            Context context = new Context();
+            context.putVar("users", users);
+            context.putVar("createdAt", LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JxlsHelper.getInstance().processTemplate(is, outputStream, context);
+            byte[] excelData = outputStream.toByteArray();
+            return excelData;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

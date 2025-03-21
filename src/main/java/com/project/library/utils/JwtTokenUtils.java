@@ -1,4 +1,4 @@
-package com.project.library.components;
+package com.project.library.utils;
 
 import com.project.library.entities.User;
 import io.jsonwebtoken.Claims;
@@ -28,7 +28,7 @@ public class JwtTokenUtils {
     public String generateAccessToken(User user) throws InvalidParameterException {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
-        claims.put("userCode", user.getCode());
+        claims.put("userCode", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)
@@ -45,7 +45,7 @@ public class JwtTokenUtils {
     public String generateRefreshToken(User user, Long expirationTime) throws InvalidParameterException {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
-        claims.put("userCode", user.getCode());
+        claims.put("userCode", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)

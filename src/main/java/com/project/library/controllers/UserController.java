@@ -1,38 +1,35 @@
 package com.project.library.controllers;
 
-import com.project.library.components.JwtTokenUtils;
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
-import com.project.library.dtos.UserSearchDTO;
-import com.project.library.entities.User;
+import com.project.library.dtos.search.UserSearchDTO;
 import com.project.library.responses.GenericResponse;
 import com.project.library.responses.LoginResponse;
 import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
-import com.project.library.services.interfaces.IUserService;
+import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
-import jakarta.servlet.http.Cookie;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import lombok.Data;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
 @AllArgsConstructor
 public class UserController {
-    private final IUserService userService;
+    private final UserService userService;
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/")
@@ -46,14 +43,24 @@ public class UserController {
         UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, userSearchDTO);
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
     }
+
+    @GetMapping("/excel")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<?> getUserExcelReport(
+            HttpServletRequest httpServletRequest
+    ) {
+        byte[] excelUserData = userService.exportUserExcelData();
+        return ResponseUtil.download("users_excel_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", excelUserData);
+    }
     
-//    @GetMapping("/{code}")
+//    @GetMapping("/{id}")
 //    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
 //    public ResponseEntity<GenericResponse> getUserByCode(
-//            @PathVariable UUID code,
+//            @PathVariable Long id,
 //            HttpServletRequest httpServletRequest
 //    ) {
-//        UserResponse userResponse = userService.getUserByCode(code);
+//        UserResponse userResponse = userService.getUserByCode(id);
 //        return ResponseEntity.ok(GenericResponse.success(userResponse));
 //    }
 
@@ -88,7 +95,7 @@ public class UserController {
      * Hàm này thực hiện gửi yêu cầu refresh lại access token trả về cho client bằng refresh token.
      * @param {String} refreshTokens - Refresh token được lấy từ client (ở đây sẽ là Cookie,
      * có thể là Header hoặc localStorage).
-     * @returns {String} - Access Token.
+     * @return {String} - Access Token.
      *
      * Ở phía Client:
      * - Khi nhận được access token mới, client sẽ lưu lại access token mới và sử dụng nó để gọi API.
@@ -127,35 +134,35 @@ public class UserController {
         return ResponseEntity.ok(GenericResponse.success("Logout successfully"));
     }
 
-    @PutMapping("/update/{code}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> updateUser(
             @RequestBody @Valid UserDTO userDTO,
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
 
-        UserResponse userResponse = userService.updateUser(userDTO, code);
+        UserResponse userResponse = userService.updateUser(userDTO, id);
         return ResponseEntity.ok(GenericResponse.success(userResponse));
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> deleteUser(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        userService.deleteUser(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        userService.deleteUser(id);
+        return ResponseEntity.ok(GenericResponse.success(id));
     }
 
-    @DeleteMapping("/destroy/{code}")
+    @DeleteMapping("/destroy/{id}")
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse> destroyUser(
-            @PathVariable UUID code,
+            @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        userService.destroyUser(code);
-        return ResponseEntity.ok(GenericResponse.success(code));
+        userService.destroyUser(id);
+        return ResponseEntity.ok(GenericResponse.success(id));
     }
 }

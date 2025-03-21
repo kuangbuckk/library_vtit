@@ -12,6 +12,7 @@ import java.util.List;
 public class GoogleBookItemVolumeInfoDTO {
     private String title;
     private List<String> authors;
+    private String language;
     private String description;
     private int pageCount;
     private List<String> categories;

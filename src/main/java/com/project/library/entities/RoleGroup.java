@@ -18,8 +18,8 @@ import java.util.UUID;
 public class RoleGroup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID code;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "role_group_name", nullable = false, length = 30)
     private String roleGroupName;
@@ -30,8 +30,8 @@ public class RoleGroup {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_groups_functions",
-            joinColumns = @JoinColumn(name = "role_group_code"),
-            inverseJoinColumns = @JoinColumn(name = "function_code")
+            joinColumns = @JoinColumn(name = "role_group_id"),
+            inverseJoinColumns = @JoinColumn(name = "function_id")
     )
     private List<Function> functions;
 

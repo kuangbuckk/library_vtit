@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CategoryResponse {
-    private UUID code;
+    private Long id;
     @JsonProperty(value = "category_name")
     private String categoryName;
     @JsonProperty(value = "books")
@@ -30,7 +30,7 @@ public class CategoryResponse {
                     .toList();
         }
         return CategoryResponse.builder()
-                .code(category.getCode())
+                .id(category.getId())
                 .categoryName(category.getCategoryName())
                 .bookResponses(bookResponses)
                 .build();

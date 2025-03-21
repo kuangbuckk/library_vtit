@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface FunctionRepository extends JpaRepository<Function, UUID> {
+public interface FunctionRepository extends JpaRepository<Function, Long> {
 
 }

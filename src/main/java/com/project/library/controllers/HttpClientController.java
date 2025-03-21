@@ -2,9 +2,8 @@ package com.project.library.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.library.responses.GenericResponse;
-import com.project.library.services.interfaces.IHttpClientService;
+import com.project.library.services.HttpClientService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,7 @@ import java.util.Arrays;
 @RequestMapping("${api.prefix}/http-client")
 @RequiredArgsConstructor
 public class HttpClientController {
-    private final IHttpClientService httpClientService;
+    private final HttpClientService httpClientService;
     private final RestTemplate restTemplate;
 
     @GetMapping("/")

@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Getter
 public class DataNotFoundException extends RuntimeException {
-    public UUID code;
+    public Long code;
 
-    public DataNotFoundException(String message, UUID code) {
+    public DataNotFoundException(String message, Long code) {
         super(message);
         this.code = code;
     }
