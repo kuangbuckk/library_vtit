@@ -19,4 +19,5 @@ public interface UserService {
     LoginResponse login(String username, String password);
     LoginResponse refreshToken(String token) throws Exception;
     void logout(String token);
+    byte[] exportUserExcelData();
 }

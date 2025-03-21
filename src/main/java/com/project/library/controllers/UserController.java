@@ -10,14 +10,20 @@ import com.project.library.responses.UserPageResponse;
 import com.project.library.responses.UserResponse;
 import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -36,6 +42,16 @@ public class UserController {
     ) {
         UserPageResponse userPageResponse = userService.getUsers(pageNumber, size, userSearchDTO);
         return ResponseEntity.ok(GenericResponse.success(userPageResponse));
+    }
+
+    @GetMapping("/excel")
+    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+    public ResponseEntity<?> getUserExcelReport(
+            HttpServletRequest httpServletRequest
+    ) {
+        byte[] excelUserData = userService.exportUserExcelData();
+        return ResponseUtil.download("users_excel_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", excelUserData);
     }
     
 //    @GetMapping("/{id}")
@@ -79,7 +95,7 @@ public class UserController {
      * Hàm này thực hiện gửi yêu cầu refresh lại access token trả về cho client bằng refresh token.
      * @param {String} refreshTokens - Refresh token được lấy từ client (ở đây sẽ là Cookie,
      * có thể là Header hoặc localStorage).
-     * @returns {String} - Access Token.
+     * @return {String} - Access Token.
      *
      * Ở phía Client:
      * - Khi nhận được access token mới, client sẽ lưu lại access token mới và sử dụng nó để gọi API.

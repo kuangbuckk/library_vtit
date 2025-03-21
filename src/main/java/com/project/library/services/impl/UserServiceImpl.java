@@ -16,7 +16,10 @@ import com.project.library.services.TokenService;
 import com.project.library.services.UserService;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -157,5 +165,22 @@ public class UserServiceImpl implements UserService {
     public void logout(String refreshToken) {
 //        String username = jwtTokenUtils.getUsernameFromToken(refreshToken);
         tokenService.invalidateRefreshToken(refreshToken);
+    }
+
+    @Override
+    public byte[] exportUserExcelData() {
+        try(InputStream is = new ClassPathResource("templates/user-template.xlsx").getInputStream()){
+            List<User> users = userRepository.findAll();
+            Context context = new Context();
+            context.putVar("users", users);
+            context.putVar("createdAt", LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JxlsHelper.getInstance().processTemplate(is, outputStream, context);
+            byte[] excelData = outputStream.toByteArray();
+            return excelData;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -7,8 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -89,5 +91,16 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getDateOfBirthFormatted() {
+        return this.dateOfBirth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    public String getRoles(){
+        return this.roleGroups.stream()
+                .map(RoleGroup::getRoleGroupName)
+                .reduce((a, b) -> a + ", " + b)
+                .get();
     }
 }
