@@ -13,11 +13,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class PostSearchDTO {
-    private UUID code;
+    private Long id;
     private String title;
     private String content;
     @JsonProperty(value = "book_id")
-    private UUID bookId;
+    private Long bookId;
     @JsonProperty(value = "user_id")
-    private UUID userId;
+    private Long userId;
 }

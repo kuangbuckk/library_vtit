@@ -14,11 +14,12 @@ import java.util.UUID;
 @Repository
 public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     @Query("SELECT br FROM Borrow br WHERE " +
-            "br.id = :#{#borrowSearchDTO.code} OR " +
-            "br.user.id = :#{#borrowSearchDTO.userCode} OR " +
-            "br.book.id = :#{#borrowSearchDTO.bookCode} OR " +
+            "br.id = :#{#borrowSearchDTO.id} OR " +
+            "br.user.id = :#{#borrowSearchDTO.userId} OR " +
+            "br.book.id = :#{#borrowSearchDTO.bookId} OR " +
             "br.borrowAt = :#{#borrowSearchDTO.borrowAt} OR " +
             "br.returnAt = :#{#borrowSearchDTO.returnAt} OR " +
             "br.status = :#{#borrowSearchDTO.status}")
     Page<Borrow> findAll(Pageable pageable, @Param("borrowSearchDTO") BorrowSearchDTO borrowSearchDTO);
+    Page<Borrow> findAllByUserId(Pageable pageable, Long userId);
 }

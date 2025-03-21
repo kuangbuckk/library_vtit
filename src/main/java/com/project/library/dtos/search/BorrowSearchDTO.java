@@ -18,10 +18,10 @@ public class BorrowSearchDTO {
     private Long id;
 
     @JsonProperty(value = "user_id")
-    private UUID userId;
+    private Long userId;
 
     @JsonProperty(value = "book_id")
-    private UUID bookId;
+    private Long bookId;
 
     @JsonProperty(value = "borrow_amount")
     private int borrowAmount;

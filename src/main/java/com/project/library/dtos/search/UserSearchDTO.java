@@ -15,6 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSearchDTO {
+    private Long id;
+
     @JsonProperty(value = "user_name")
     private String username;
 
@@ -35,6 +37,6 @@ public class UserSearchDTO {
     @JsonProperty("is_active")
     private Boolean isActive;
 
-    @JsonProperty(value = "role_group_codes")
-    private List<UUID> roleGroupCodes;
+    @JsonProperty(value = "role_group_ids")
+    private List<Long> roleGroupIds;
 }
