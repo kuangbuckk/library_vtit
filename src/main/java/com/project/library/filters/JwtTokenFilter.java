@@ -1,6 +1,6 @@
 package com.project.library.filters;
 
-import com.project.library.components.JwtTokenUtils;
+import com.project.library.utils.JwtTokenUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

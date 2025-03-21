@@ -13,9 +13,9 @@ spring:
       basename: i18n/messages
   main:
       allow-bean-definition-overriding: true
-  server:
-    servlet:
-      context-path: ${CONTEXT_PATH}
+server:
+  servlet:
+    context-path: ${CONTEXT_PATH}
 api:
   prefix: ${API_PREFIX}
 jwt:

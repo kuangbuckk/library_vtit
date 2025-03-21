@@ -1,6 +1,6 @@
 package com.project.library.exceptions;
 
-import com.project.library.components.LocalizationUtils;
+import com.project.library.utils.LocalizationUtils;
 import com.project.library.responses.GenericResponse;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
