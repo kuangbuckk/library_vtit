@@ -17,13 +17,13 @@ public class ResponseUtil {
         return ResponseEntity.ok(response);
     }
 
-    public static ResponseEntity<GenericResponse> error(String code, String message) {
+    public static ResponseEntity<GenericResponse> error(String code, String message, HttpStatus httpStatus) {
         GenericResponse response = GenericResponse.builder()
                 .code(code)
                 .message(message)
                 .data(null)
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(httpStatus).body(response);
     }
 
     public static <T> ResponseEntity<?> download(String filename, byte[] fileData) {

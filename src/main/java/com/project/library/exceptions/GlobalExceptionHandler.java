@@ -3,6 +3,7 @@ package com.project.library.exceptions;
 import com.project.library.utils.LocalizationUtils;
 import com.project.library.responses.GenericResponse;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,60 +26,63 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     private final LocalizationUtils localizationUtils;
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<GenericResponse<Object>> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(GenericResponse.error(MessageKeys.ILLEGAL_INPUT_ARGUMENT, errors.toString()));
-    }
-
     //BindingResult exception
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<GenericResponse<Object>> handleBindException(final BindException e) {
+    public ResponseEntity<GenericResponse> handleBindException(final BindException e) {
         String errors = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .toString();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(GenericResponse.error(MessageKeys.ILLEGAL_INPUT_ARGUMENT, errors));
+        return ResponseUtil.error(
+                MessageKeys.ILLEGAL_INPUT_ARGUMENT,
+                errors,
+                HttpStatus.BAD_REQUEST
+        );
     }
 
-
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<GenericResponse<Object>> handleUsernameNotFoundExceptionException(final UsernameNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    public ResponseEntity<GenericResponse> handleUsernameNotFoundExceptionException(final UsernameNotFoundException e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                localizationUtils.getLocalizedMessage(e.getMessage()),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
 
     @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<GenericResponse<Object>> handleDataNotFoundException(final DataNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage(), e.getCode())));
+    public ResponseEntity<GenericResponse> handleDataNotFoundException(final DataNotFoundException e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                localizationUtils.getLocalizedMessage(e.getMessage()),
+                HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(DataOutOfBoundException.class)
-    public ResponseEntity<GenericResponse<Object>> handleDataOutOfBoundException(final DataOutOfBoundException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    public ResponseEntity<GenericResponse> handleDataOutOfBoundException(final DataOutOfBoundException e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                localizationUtils.getLocalizedMessage(e.getMessage()),
+                HttpStatus.BAD_GATEWAY
+        );
     }
 
     @ExceptionHandler(InvalidOwnerException.class)
-    public ResponseEntity<GenericResponse<Object>> handleInvalidOwnerException(final InvalidOwnerException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    public ResponseEntity<GenericResponse> handleInvalidOwnerException(final InvalidOwnerException e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                localizationUtils.getLocalizedMessage(e.getMessage()),
+                HttpStatus.FORBIDDEN
+        );
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<GenericResponse<Object>> handleBusinessException(final BusinessException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    public ResponseEntity<GenericResponse> handleBusinessException(final BusinessException e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                localizationUtils.getLocalizedMessage(e.getMessage()),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(ImportExcelException.class)
@@ -86,14 +90,17 @@ public class GlobalExceptionHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "error_excel.xlsx");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .headers(headers)
                 .body(e.getErrorFile());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<GenericResponse<Object>> exception(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(GenericResponse.error(e.getMessage(), e.getMessage()));
+    public ResponseEntity<GenericResponse> exception(Exception e) {
+        return ResponseUtil.error(
+                e.getMessage(),
+                e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

@@ -6,6 +6,7 @@ import com.project.library.responses.GenericResponse;
 import com.project.library.responses.RoleGroupResponse;
 import com.project.library.services.RoleGroupService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -23,13 +24,20 @@ public class RoleGroupController {
 
     @GetMapping("/")
     public ResponseEntity<?> getRoleGroups() {
-        return ResponseEntity.ok(GenericResponse.success(roleGroupService.getRoleGroups()));
+        return ResponseUtil.success(
+                MessageKeys.GET_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_FUNCTION_SUCCESSFULLY),
+                roleGroupService.getRoleGroups()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoleGroup(@PathVariable Long id) {
-        RoleGroupResponse existingRoleGroup = roleGroupService.getRoleGroupByCode(id);
-        return ResponseEntity.ok(GenericResponse.success(existingRoleGroup));
+        return ResponseUtil.success(
+                MessageKeys.GET_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_FUNCTION_SUCCESSFULLY),
+                roleGroupService.getRoleGroupByCode(id)
+        );
     }
 
     @PostMapping("/create")
@@ -38,11 +46,11 @@ public class RoleGroupController {
             @RequestBody @Valid RoleGroupDTO roleGroupDTO,
             HttpServletRequest httpServletRequest
     ) {
-        RoleGroupResponse newRoleGroup = roleGroupService.createRoleGroup(roleGroupDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.INSERT_ROLE_GROUP_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_ROLE_GROUP_SUCCESSFULLY),
-                newRoleGroup));
+                roleGroupService.createRoleGroup(roleGroupDTO)
+        );
     }
 
     @PutMapping("/update/{id}")
@@ -52,11 +60,10 @@ public class RoleGroupController {
             @PathVariable Long id,
             HttpServletRequest httpServletRequest
     ) {
-        RoleGroupResponse updatedRoleGroup = roleGroupService.updateRoleGroup(roleGroupDTO, id);
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_ROLE_GROUP_SUCCESSFULLY),
-                updatedRoleGroup)
+                roleGroupService.updateRoleGroup(roleGroupDTO, id)
         );
     }
 
@@ -66,6 +73,10 @@ public class RoleGroupController {
             @PathVariable Long id
     ) {
         roleGroupService.deleteRoleGroup(id);
-        return ResponseEntity.ok(GenericResponse.success(id));
+        return ResponseUtil.success(
+                MessageKeys.DELETE_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_FUNCTION_SUCCESSFULLY),
+                id
+        );
     }
 }

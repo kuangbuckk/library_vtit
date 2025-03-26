@@ -132,7 +132,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<GenericResponse> logout(
+    public ResponseEntity<GenericResponse<String>> logout(
             @CookieValue(name = "x-auth-refresh-token") String refreshToken,
             HttpServletResponse response
     ) {
@@ -143,7 +143,11 @@ public class UserController {
                 .path("/")
                 .build();
         response.setHeader("Set-Cookie", responseCookie.toString());
-        return ResponseEntity.ok(GenericResponse.success("Logout successfully"));
+        return ResponseUtil.success(
+                MessageKeys.LOGOUT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.LOGOUT_SUCCESSFULLY),
+                MessageKeys.LOGOUT_SUCCESSFULLY
+        );
     }
 
     @PutMapping("/update/{id}")

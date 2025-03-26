@@ -2,6 +2,7 @@ package com.project.library.utils;
 
 public class MessageKeys {
     public static final String LOGIN_SUCCESSFULLY =  "user.login.success";
+    public static final String LOGOUT_SUCCESSFULLY =  "user.logout.success";
     public static final String REGISTER_SUCCESSFULLY =  "user.register.success";
     public static final String LOGIN_FAILED =  "user.login.failed";
     public static final String PASSWORD_NOT_MATCH =  "user.register.password_not_match";
@@ -17,6 +18,7 @@ public class MessageKeys {
     public static final String CATEGORY_NOT_FOUND = "category.find.error";
 
     public static final String GET_BOOK_SUCCESSFULLY = "book.view.success";
+    public static final String SYNC_BOOK_SUCCESSFULLY = "book.sync.success";
     public static final String INSERT_BOOK_SUCCESSFULLY = "book.create.success";
     public static final String UPDATE_BOOK_SUCCESSFULLY = "book.update.success";
     public static final String DELETE_BOOK_SUCCESSFULLY = "book.delete.success";
@@ -66,6 +68,7 @@ public class MessageKeys {
     public static final String USER_EMAIL_EXISTED = "user.duplicated.email.error";
     public static final String USER_PHONE_NUMBER_EXISTED = "user.duplicated.phone_number.error";
 
+    public static final String GET_ROLE_GROUP_SUCCESSFULLY = "role_group.view.success";
     public static final String INSERT_ROLE_GROUP_SUCCESSFULLY = "role_group.create.success";
     public static final String UPDATE_ROLE_GROUP_SUCCESSFULLY = "role_group.update.success";
     public static final String DELETE_ROLE_GROUP_SUCCESSFULLY = "role_group.delete.success";
@@ -74,6 +77,7 @@ public class MessageKeys {
     public static final String DELETE_ROLE_GROUP_FAILED = "role_group.delete.error";
     public static final String ROLE_GROUP_NOT_FOUND = "role_group.find.error";
 
+    public static final String GET_FUNCTION_SUCCESSFULLY = "function.view.success";
     public static final String INSERT_FUNCTION_SUCCESSFULLY = "function.create.success";
     public static final String UPDATE_FUNCTION_SUCCESSFULLY = "function.update.success";
     public static final String DELETE_FUNCTION_SUCCESSFULLY = "function.delete.success";

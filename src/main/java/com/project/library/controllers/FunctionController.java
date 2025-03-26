@@ -6,6 +6,7 @@ import com.project.library.responses.FunctionResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.FunctionService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,13 +25,20 @@ public class FunctionController {
 
     @GetMapping("/")
     public ResponseEntity<?> getAllFunctions() {
-        return ResponseEntity.ok(GenericResponse.success(functionService.getAllFunctions()));
+        return ResponseUtil.success(
+                MessageKeys.GET_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_FUNCTION_SUCCESSFULLY),
+                functionService.getAllFunctions()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getFunction(@PathVariable Long id) {
-        FunctionResponse existingFunction = functionService.getFunctionByCode(id);
-        return ResponseEntity.ok(GenericResponse.success(existingFunction));
+        return ResponseUtil.success(
+                MessageKeys.GET_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_FUNCTION_SUCCESSFULLY),
+                functionService.getFunctionByCode(id)
+        );
     }
 
     @PostMapping("/create")
@@ -39,11 +47,11 @@ public class FunctionController {
             @RequestBody @Valid FunctionDTO functionDTO,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        FunctionResponse newFunction = functionService.addFunction(functionDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.INSERT_FUNCTION_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_FUNCTION_SUCCESSFULLY),
-                newFunction));
+                functionService.addFunction(functionDTO)
+        );
     }
 
     @PutMapping("/update/{id}")
@@ -53,11 +61,11 @@ public class FunctionController {
             @PathVariable Long id,
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
-        FunctionResponse existingFunction = functionService.getFunctionByCode(id);
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_FUNCTION_SUCCESSFULLY),
-                existingFunction));
+                functionService.getFunctionByCode(id)
+        );
     }
 
     @DeleteMapping("/destroy/{id}")
@@ -67,6 +75,10 @@ public class FunctionController {
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         functionService.deleteFunction(id);
-        return ResponseEntity.ok("Deleted function");
+        return ResponseUtil.success(
+                MessageKeys.DELETE_FUNCTION_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_FUNCTION_SUCCESSFULLY),
+                id
+        );
     }
 }

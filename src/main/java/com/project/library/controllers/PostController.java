@@ -84,10 +84,9 @@ public class PostController {
             Authentication authentication,
             HttpServletRequest httpServletRequest
     ) {
-
         return ResponseUtil.success(
-                MessageKeys.UPDATE_POST_SUCCESSFULLY,
-                localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_POST_SUCCESSFULLY),
+                MessageKeys.DELETE_POST_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_POST_SUCCESSFULLY),
                 postService.deletePost(authentication, id)
         );
     }
@@ -96,9 +95,10 @@ public class PostController {
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse<Long>> destroyPost(@PathVariable("id") Long id) {
         postService.destroyPost(id);
-        return ResponseEntity.ok(GenericResponse.success(
-                MessageKeys.DELETE_POST_SUCCESSFULLY,
-                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_POST_SUCCESSFULLY),
-                id));
+        return ResponseUtil.success(
+                MessageKeys.DESTROY_POST_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DESTROY_POST_SUCCESSFULLY),
+                id
+        );
     }
 }

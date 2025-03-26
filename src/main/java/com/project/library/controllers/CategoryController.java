@@ -39,9 +39,13 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<GenericResponse> getCategory(@PathVariable Long id) {
+    public ResponseEntity<GenericResponse<CategoryResponse>> getCategory(@PathVariable Long id) {
         CategoryResponse existingCategory = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(GenericResponse.success(existingCategory));
+        return ResponseUtil.success(
+                MessageKeys.GET_CATEGORY_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_CATEGORY_SUCCESSFULLY),
+                existingCategory
+        );
     }
 
     @PostMapping("/create")
