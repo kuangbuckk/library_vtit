@@ -92,10 +92,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void destroyComment(Long id) {
+    public Long destroyComment(Long id) {
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.COMMENT_NOT_FOUND, id));
         commentRepository.delete(existingComment);
+        return id;
     }
 
     private User getCurrentAuthenticatedUser(Authentication authentication){

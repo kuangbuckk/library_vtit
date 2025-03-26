@@ -6,6 +6,7 @@ import com.project.library.responses.CommentResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.CommentService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,13 +25,20 @@ public class CommentController {
     @GetMapping("/")
     @PreAuthorize("@customSecurityExpression.fileRole(#request)")
     public ResponseEntity<?> getAllComments() {
-        return ResponseEntity.ok(GenericResponse.success(commentService.getAllComment()));
+        return ResponseUtil.success(
+                MessageKeys.GET_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_COMMENT_SUCCESSFULLY),
+                commentService.getAllComment()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCommentByCode(@PathVariable("id") Long id) {
-        CommentResponse commentResponse = commentService.getCommentById(id);
-        return ResponseEntity.ok(GenericResponse.success(commentResponse));
+        return ResponseUtil.success(
+                MessageKeys.GET_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_COMMENT_SUCCESSFULLY),
+                commentService.getCommentById(id)
+        );
     }
 
     @PostMapping("/create")
@@ -38,11 +46,13 @@ public class CommentController {
     public ResponseEntity<?> addComment(
             @RequestBody @Valid CommentDTO commentDTO,
             Authentication authentication,
-            HttpServletRequest request) {
-        return ResponseEntity.ok(GenericResponse.success(
+            HttpServletRequest request
+    ) {
+        return ResponseUtil.success(
                 MessageKeys.INSERT_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_COMMENT_SUCCESSFULLY),
-                commentService.addComment(authentication, commentDTO)));
+                commentService.addComment(authentication, commentDTO)
+        );
     }
 
     @PutMapping("/update/{id}")
@@ -53,10 +63,10 @@ public class CommentController {
             Authentication authentication,
             HttpServletRequest request
     ) {
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.UPDATE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_COMMENT_SUCCESSFULLY),
-                commentService.updateComment(authentication, commentDTO, id))
+                commentService.updateComment(authentication, commentDTO, id)
         );
     }
 
@@ -67,20 +77,20 @@ public class CommentController {
             Authentication authentication,
             HttpServletRequest request
     ) {
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.DELETE_COMMENT_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_COMMENT_SUCCESSFULLY),
-                commentService.deleteComment(authentication, id))
+                commentService.deleteComment(authentication, id)
         );
     }
 
     @DeleteMapping("/destroy/{id}")
     @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER')")
     public ResponseEntity<?> destroyComment(@PathVariable("id") Long id) {
-        commentService.destroyComment(id);
-        return ResponseEntity.ok(GenericResponse.success(
-                MessageKeys.DELETE_BOOK_SUCCESSFULLY,
-                localizationUtils.getLocalizedMessage(MessageKeys.DELETE_BOOK_SUCCESSFULLY),
-                id));
+        return ResponseUtil.success(
+                MessageKeys.DESTROY_COMMENT_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.DESTROY_COMMENT_SUCCESSFULLY),
+                commentService.destroyComment(id)
+        );
     }
 }

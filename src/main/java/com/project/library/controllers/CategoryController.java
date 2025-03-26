@@ -6,6 +6,7 @@ import com.project.library.responses.CategoryResponse;
 import com.project.library.responses.GenericResponse;
 import com.project.library.services.CategoryService;
 import com.project.library.utils.MessageKeys;
+import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,9 +29,12 @@ public class CategoryController {
 
     @GetMapping("/")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<GenericResponse> getAllCategories() {
-        List<CategoryResponse> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(GenericResponse.success(categories));
+    public ResponseEntity<GenericResponse<List<CategoryResponse>>> getAllCategories() {
+        return ResponseUtil.success(
+                MessageKeys.GET_CATEGORY_SUCCESSFULLY,
+                localizationUtils.getLocalizedMessage(MessageKeys.GET_CATEGORY_SUCCESSFULLY),
+                categoryService.getAllCategories()
+        );
     }
 
     @GetMapping("/{id}")
@@ -47,10 +51,11 @@ public class CategoryController {
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         CategoryResponse newCategory = categoryService.addCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.INSERT_CATEGORY_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_CATEGORY_SUCCESSFULLY),
-                newCategory));
+                newCategory
+        );
     }
 
     @PutMapping("/update/{id}")
@@ -61,10 +66,11 @@ public class CategoryController {
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         CategoryResponse updatedCategory = categoryService.updateCategory(categoryDTO, id);
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY),
-                updatedCategory));
+                updatedCategory
+        );
     }
 
     @DeleteMapping("/{id}")
@@ -74,9 +80,10 @@ public class CategoryController {
             @P("httpServletRequest") HttpServletRequest httpServletRequest
     ) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok(GenericResponse.success(
+        return ResponseUtil.success(
                 MessageKeys.DELETE_CATEGORY_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY),
-                id));
+                id
+        );
     }
 }

@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -38,6 +39,19 @@ public class BorrowController {
         return ResponseUtil.success(HttpStatus.FOUND.toString(), "success", borrowPageResponse);
     }
 
+//    @GetMapping("/user/{id}")
+//    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
+//    public ResponseEntity<GenericResponse<BorrowPageResponse>> getBorrows(
+//            @RequestParam("page_number") int pageNumber,
+//            @RequestParam("size") int size,
+//            @PathVariable("id") Long userId,
+//            @RequestBody BorrowSearchDTO borrowSearchDTO,
+//            HttpServletRequest httpServletRequest
+//    ) {
+//        BorrowPageResponse borrowPageResponse = borrowService.getAllBorrows(pageNumber, size, borrowSearchDTO);
+//        return ResponseUtil.success(HttpStatus.FOUND.toString(), "success", borrowPageResponse);
+//    }
+
 //    @GetMapping("/{code}")
 ////    @PreAuthorize("hasRole('ADMIN') OR hasRole('MANAGER') OR hasRole('LIBRARIAN')")
 //    @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
@@ -53,9 +67,10 @@ public class BorrowController {
     @PreAuthorize("@customSecurityExpression.fileRole(#httpServletRequest)")
     public ResponseEntity<GenericResponse<BorrowResponse>> addBorrow(
             @RequestBody @Valid BorrowDTO borrowDTO,
+            Authentication authentication,
             HttpServletRequest httpServletRequest
     ) {
-        BorrowResponse borrowResponse = borrowService.addBorrow(borrowDTO);
+        BorrowResponse borrowResponse = borrowService.addBorrow(authentication, borrowDTO);
         return ResponseUtil.success(
                 MessageKeys.INSERT_BORROW_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.INSERT_BORROW_SUCCESSFULLY),

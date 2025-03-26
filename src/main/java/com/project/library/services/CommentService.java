@@ -12,5 +12,5 @@ public interface CommentService {
     CommentResponse addComment(Authentication authentication, CommentDTO CommentDTO);
     CommentResponse updateComment(Authentication authentication, CommentDTO CommentDTO, Long id);
     CommentResponse deleteComment(Authentication authentication, Long id);
-    void destroyComment(Long id);
+    Long destroyComment(Long id);
 }
