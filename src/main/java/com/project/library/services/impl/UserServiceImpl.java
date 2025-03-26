@@ -1,5 +1,6 @@
 package com.project.library.services.impl;
 
+import com.project.library.exceptions.BusinessException;
 import com.project.library.utils.JwtTokenUtils;
 import com.project.library.dtos.UserDTO;
 import com.project.library.dtos.search.UserSearchDTO;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,10 +72,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse createUser(UserDTO userDTO) {
-        if (userDTO.getRoleGroupIds().isEmpty()) {
-            throw new BadCredentialsException(MessageKeys.ROLE_GROUP_NOT_FOUND);
-        }
-        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupIds());
+
+        this.checkUser(userDTO);
         applicationEventPublisher.publishEvent(new UserRegisterEvent(userDTO.getUsername()));
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .dateOfBirth(userDTO.getDateOfBirth())
                 .address(userDTO.getAddress())
-                .roleGroups(roleGroups)
+                .roleGroups(List.of(roleGroupRepository.findRoleGroupByRoleGroupName(RoleGroup.USER)))
                 .build();
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         newUser.setPassword(encodedPassword);
@@ -92,15 +92,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(UserDTO User, Long id) {
+    public UserResponse updateUser(UserDTO userDTO, Long id) {
+        this.checkUser(userDTO);
         User existingUser = userRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException(MessageKeys.USER_NOT_FOUND, id));
-        existingUser.setFullName(User.getFullName());
-        existingUser.setUsername(User.getUsername());
-        existingUser.setEmail(User.getEmail());
-        existingUser.setPhoneNumber(User.getPhoneNumber());
-        existingUser.setDateOfBirth(User.getDateOfBirth());
-        existingUser.setAddress(User.getAddress());
+        List<RoleGroup> roleGroups = roleGroupRepository.findAllById(userDTO.getRoleGroupIds());
+//        if (roleGroups.stream().anyMatch(roleGroup -> roleGroup.getRoleGroupNa) &&
+//                SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch()) {
+//
+//        }
+        existingUser.setFullName(userDTO.getFullName());
+        existingUser.setUsername(userDTO.getUsername());
+        existingUser.setEmail(userDTO.getEmail());
+        existingUser.setPhoneNumber(userDTO.getPhoneNumber());
+        existingUser.setDateOfBirth(userDTO.getDateOfBirth());
+        existingUser.setAddress(userDTO.getAddress());
+        if (SecurityContextHolder.getContext().getAuthentication().getCredentials().equals("ROLE_ADMIN")) {
+            existingUser.setRoleGroups(roleGroups);
+        }
         userRepository.save(existingUser);
         return UserResponse.fromUser(existingUser);
     }
@@ -181,6 +190,18 @@ public class UserServiceImpl implements UserService {
             return excelData;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void checkUser(UserDTO userDTO) {
+        if (userRepository.existsUserByUsername(userDTO.getUsername())) {
+            throw new BusinessException(MessageKeys.USER_USERNAME_EXISTED);
+        }
+        if (userRepository.existsUserByEmail(userDTO.getEmail())) {
+            throw new BusinessException(MessageKeys.USER_EMAIL_EXISTED);
+        }
+        if (userRepository.existsUserByPhoneNumber(userDTO.getPhoneNumber())) {
+            throw new BusinessException(MessageKeys.USER_PHONE_NUMBER_EXISTED);
         }
     }
 }

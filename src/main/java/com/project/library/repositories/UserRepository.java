@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.isActive = :#{#userSearchDTO.isActive}")
     Page<User> findAll(Pageable pageable, @Param("userSearchDTO") UserSearchDTO userSearchDTO);
     Optional<User> findByUsername(String username);
+    boolean existsUserByUsername(String username);
+    boolean existsUserByEmail(String email);
+    boolean existsUserByPhoneNumber(String phoneNumber);
 }
