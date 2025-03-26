@@ -62,6 +62,9 @@ public class MessageKeys {
     public static final String DELETE_USER_FAILED = "user.delete.error";
     public static final String DESTROY_USER_FAILED = "user.delete.error";
     public static final String USER_NOT_FOUND = "user.find.error";
+    public static final String USER_USERNAME_EXISTED = "user.duplicated.username.error";
+    public static final String USER_EMAIL_EXISTED = "user.duplicated.email.error";
+    public static final String USER_PHONE_NUMBER_EXISTED = "user.duplicated.phone_number.error";
 
     public static final String INSERT_ROLE_GROUP_SUCCESSFULLY = "role_group.create.success";
     public static final String UPDATE_ROLE_GROUP_SUCCESSFULLY = "role_group.update.success";
