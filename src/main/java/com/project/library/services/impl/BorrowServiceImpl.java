@@ -19,6 +19,8 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,7 +49,7 @@ public class BorrowServiceImpl implements BorrowService {
                 .totalPages(totalPages)
                 .build();
     }
-
+    
     @Override
     public BorrowResponse getBorrowByCode(Long id) {
         Borrow existingBorrow = borrowRepository
@@ -57,7 +59,7 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public BorrowResponse addBorrow(BorrowDTO borrowDTO) {
+    public BorrowResponse addBorrow(Authentication authentication, BorrowDTO borrowDTO) {
         Book existingBook = bookRepository.findById(borrowDTO.getBookId())
                 .orElseThrow(() ->
                         new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, borrowDTO.getBookId())
@@ -70,12 +72,10 @@ public class BorrowServiceImpl implements BorrowService {
         }
         existingBook.setAmount(existingBook.getAmount() - borrowDTO.getBorrowAmount());
         bookRepository.saveAndFlush(existingBook);
-
-        User existingUser = userRepository.findById(borrowDTO.getUserId())
+        String username = authentication.getName();
+        User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(() ->
-                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND, borrowDTO.getUserId())
-                );
-
+                        new DataNotFoundException(MessageKeys.USER_NOT_FOUND));
         Borrow newBorrow = Borrow.builder()
                 .book(existingBook)
                 .user(existingUser)

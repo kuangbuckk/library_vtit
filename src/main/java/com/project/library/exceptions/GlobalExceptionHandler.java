@@ -4,7 +4,9 @@ import com.project.library.utils.LocalizationUtils;
 import com.project.library.responses.GenericResponse;
 import com.project.library.utils.MessageKeys;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
@@ -71,6 +73,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GenericResponse<Object>> handleInvalidOwnerException(final InvalidOwnerException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<GenericResponse<Object>> handleBusinessException(final BusinessException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(GenericResponse.error(e.getMessage(), localizationUtils.getLocalizedMessage(e.getMessage())));
+    }
+
+    @ExceptionHandler(ImportExcelException.class)
+    public ResponseEntity<byte[]> handleImportExcelException(final ImportExcelException e) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "error_excel.xlsx");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .headers(headers)
+                .body(e.getErrorFile());
     }
 
     @ExceptionHandler(Exception.class)

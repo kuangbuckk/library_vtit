@@ -5,24 +5,20 @@ import com.project.library.dtos.BookDTO;
 import com.project.library.dtos.search.BookSearchDTO;
 import com.project.library.responses.BookPageResponse;
 import com.project.library.responses.BookResponse;
-import com.project.library.responses.GenericResponse;
 import com.project.library.services.BookService;
 import com.project.library.utils.MessageKeys;
 import com.project.library.utils.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/books")
@@ -43,7 +39,8 @@ public class BookController {
             @RequestBody BookSearchDTO bookSearchDTO
     ) {
         BookPageResponse bookPageResponse = bookService.getAllBooks(pageNumber, size, bookSearchDTO);
-        return ResponseUtil.success(MessageKeys.GET_BOOK_SUCCESSFULLY,
+        return ResponseUtil.success(
+                MessageKeys.GET_BOOK_SUCCESSFULLY,
                 localizationUtils.getLocalizedMessage(MessageKeys.GET_BOOK_SUCCESSFULLY),
                 bookPageResponse);
     }
@@ -61,6 +58,12 @@ public class BookController {
         byte[] excelFileData = bookService.exportBookExcelReport();
         return ResponseUtil.download("book_report_" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", excelFileData);
+    }
+
+    @PostMapping("/excel/import")
+    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseUtil.download("book_report_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", bookService.importBookExcelData(file));
     }
 
     @PostMapping("/create")
