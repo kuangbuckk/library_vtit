@@ -4,7 +4,6 @@ import com.project.library.dtos.BookDTO;
 import com.project.library.dtos.search.BookSearchDTO;
 import com.project.library.entities.Book;
 import com.project.library.entities.Category;
-import com.project.library.entities.User;
 import com.project.library.exceptions.DataNotFoundException;
 import com.project.library.exceptions.ImportExcelException;
 import com.project.library.repositories.BookRepository;
@@ -19,6 +18,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -41,6 +40,7 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public BookPageResponse getAllBooks(int pageNumber, int size, BookSearchDTO bookSearchDTO) {
@@ -70,15 +70,8 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponse addBook(BookDTO bookDTO) {
         List<Category> categories = categoryRepository.findCategoriesByIdIn(bookDTO.getCategoryIds());
-        Book newBook = Book.builder()
-                .title(bookDTO.getTitle())
-                .author(bookDTO.getAuthor())
-                .amount(bookDTO.getAmount())
-                .language(bookDTO.getLanguage())
-                .description(bookDTO.getDescription())
-                .pageCount(bookDTO.getPageCount())
-                .categories(categories)
-                .build();
+        Book newBook = modelMapper.map(bookDTO, Book.class);
+        newBook.setCategories(categories);
         bookRepository.save(newBook);
         return BookResponse.fromBook(newBook);
     }
@@ -87,13 +80,9 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponse updateBook(BookDTO bookDTO, Long id) {
         List<Category> categories = categoryRepository.findCategoriesByIdIn(bookDTO.getCategoryIds());
-
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException(MessageKeys.BOOK_NOT_FOUND, id));
-
-        existingBook.setTitle(bookDTO.getTitle());
-        existingBook.setAuthor(bookDTO.getAuthor());
-        existingBook.setAmount(bookDTO.getAmount());
+        existingBook = modelMapper.map(bookDTO, Book.class);
         existingBook.setCategories(categories);
         bookRepository.save(existingBook);
 
@@ -120,7 +109,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public byte[] exportBookExcelReport() {
         List<Book> books = bookRepository.findAll();
-        try (InputStream is = new ClassPathResource("templates/book-template.xlsx").getInputStream()) {
+        try (InputStream is = new ClassPathResource("excel-templates/book-template.xlsx").getInputStream()) {
             Context context = new Context();
             context.putVar("books", books);
             context.putVar("createdAt", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -143,7 +132,7 @@ public class BookServiceImpl implements BookService {
             int startingRow = 4;
             while (rows.hasNext()) {
                 Row currentRow = rows.next();
-                if (currentRow.getRowNum() < startingRow) { //iterate until data rows
+                if (currentRow.getRowNum() < startingRow) {
                     continue;
                 }
                 Book newBook = new Book();
@@ -152,22 +141,20 @@ public class BookServiceImpl implements BookService {
                 try {
                     newBook.setTitle(currentRow.getCell(cellIndex++).getStringCellValue());
                     newBook.setAuthor(currentRow.getCell(cellIndex++).getStringCellValue());
-
                     List<String> categoryNames = Arrays.stream(currentRow.getCell(cellIndex++)
                                     .getStringCellValue().split(","))
                             .toList();
                     List<Category> categories = categoryRepository.findByCategoryNameIn(categoryNames);
                     newBook.setCategories(categories);
-
                     newBook.setAmount((int) currentRow.getCell(cellIndex++).getNumericCellValue());
                     newBook.setLanguage(currentRow.getCell(cellIndex++).getStringCellValue());
                     newBook.setDescription(currentRow.getCell(cellIndex++).getStringCellValue());
                     newBook.setPageCount((int) currentRow.getCell(cellIndex++).getNumericCellValue());
                 } catch (Exception e) {
                     errors.add(e.getMessage());
-                    Cell errorCell = currentRow.getCell(cellIndex - 1);//if not empty but has error then set at the same index
+                    Cell errorCell = currentRow.getCell(cellIndex - 1);
                     if (errorCell == null) {
-                        errorCell = currentRow.createCell(cellIndex - 1); //if empty cell then create cell at the same index and set error
+                        errorCell = currentRow.createCell(cellIndex - 1);
                     }
                     errorCell.setCellValue(e.getMessage());
                     hasError = true;
@@ -177,7 +164,7 @@ public class BookServiceImpl implements BookService {
                 }
             }
             if (hasError) {
-                ByteArrayOutputStream os = new ByteArrayOutputStream(); //if has error then return file with http status of error
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
                 workbook.write(os);
                 throw new ImportExcelException("Import failed", os.toByteArray());
             }

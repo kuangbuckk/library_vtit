@@ -13,6 +13,7 @@ import com.project.library.repositories.UserRepository;
 import com.project.library.responses.BookResponse;
 import com.project.library.services.HttpClientService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,7 @@ public class HttpClientServiceImpl implements HttpClientService {
     private final BookRepository bookRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Value("${external-resource.google-book-url}")
     private String googleApiURl;
@@ -68,15 +70,9 @@ public class HttpClientServiceImpl implements HttpClientService {
                 continue;
             }
             List<Category> categories = categoryRepository.findByCategoryNameIn(volumeInfo.getCategories());
-            Book newBook = Book.builder()
-                    .title(volumeInfo.getTitle())
-                    .author(volumeInfo.getAuthors().toString())
-                    .language(volumeInfo.getLanguage())
-                    .description(volumeInfo.getDescription())
-                    .pageCount(volumeInfo.getPageCount())
-                    .amount(80) //Ko co data tren source nen fake du lieu tam
-                    .categories(categories)
-                    .build();
+            Book newBook = modelMapper.map(volumeInfo, Book.class);
+            newBook.setAmount(80); //fake du lieu
+            newBook.setCategories(categories);
             bookRepository.save(newBook);
             newSyncedBooks.add(newBook);
             logger.info("Add new sync data into DB!");
