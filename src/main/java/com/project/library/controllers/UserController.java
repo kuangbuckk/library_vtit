@@ -1,5 +1,6 @@
 package com.project.library.controllers;
 
+import com.project.library.constants.FilenameTemplate;
 import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.LoginDTO;
 import com.project.library.dtos.UserDTO;
@@ -20,10 +21,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -54,8 +51,7 @@ public class UserController {
             HttpServletRequest httpServletRequest
     ) {
         byte[] excelUserData = userService.exportUserExcelData();
-        return ResponseUtil.download("users_excel_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", excelUserData);
+        return ResponseUtil.download(FilenameTemplate.USER_EXCEL_NAME, excelUserData);
     }
 
 //    @GetMapping("/{id}")

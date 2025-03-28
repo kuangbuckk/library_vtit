@@ -1,5 +1,6 @@
 package com.project.library.controllers;
 
+import com.project.library.constants.FilenameTemplate;
 import com.project.library.utils.LocalizationUtils;
 import com.project.library.dtos.BookDTO;
 import com.project.library.dtos.search.BookSearchDTO;
@@ -62,8 +63,7 @@ public class BookController {
 
     @PostMapping("/excel/import")
     public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseUtil.download("book_report_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx", bookService.importBookExcelData(file));
+        return ResponseUtil.download(FilenameTemplate.BOOK_EXCEL_NAME, bookService.importBookExcelData(file));
     }
 
     @PostMapping("/create")
